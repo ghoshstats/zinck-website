@@ -420,10 +420,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -516,15 +516,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree4a63f89f1491e767ac02fd8530a532ecfc7726edtargetblank4a63f89a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+<a href="https://github.com/ghoshstats/zinck-website/tree/4a63f89f1491e767ac02fd8530a532ecfc7726ed" target="_blank">4a63f89</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree4a63f89f1491e767ac02fd8530a532ecfc7726edtargetblank4a63f89a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -534,7 +534,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+<a href="https://github.com/ghoshstats/zinck-website/tree/4a63f89f1491e767ac02fd8530a532ecfc7726ed" target="_blank">4a63f89</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -548,14 +548,11 @@ depends on. Below is the status of the Git repository when the results
 were generated:
 </p>
 <pre><code>
-Untracked files:
-    Untracked:  analysis/CRC.Rmd
-    Untracked:  analysis/Heatmaps.Rmd
-    Untracked:  analysis/IBD.Rmd
-    Untracked:  analysis/simulation.Rmd
+Ignored files:
+    Ignored:    .DS_Store
 
 Unstaged changes:
-    Modified:   analysis/index.Rmd
+    Modified:   analysis/CRC.Rmd
 
 </code></pre>
 <p>
@@ -570,23 +567,86 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/CRC.Rmd</code>) and HTML
+(<code>docs/CRC.html</code>) files. If you’ve configured a remote Git
+repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
+in the table below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ghoshstats/zinck-website/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/CRC.html" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Build and publish the website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/a6c38f81ddf35b0d78bcc099268c13bc646997c5/analysis/CRC.Rmd" target="_blank">a6c38f8</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Add home, experiment, and simulation pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
 </div>
 <div id="crc-data-analysis" class="section level2">
 <h2>CRC Data Analysis</h2>
-<p>We applied Zinck to meta-analyze five metagenomics studies of CRC.
-The five studies correspond to five different countries for the CRC
-data, which are named <code>AT" (Australia),</code>US” (USA),
-<code>CN" (China),</code>DE” (Germany), and ``FR” (France). The sample
-sizes are 109, 127, 120, 114, and 104, respectively, and the number of
-cases and controls is roughly balanced in each study. We focus on the
-most abundant <span class="math inline">\(300\)</span> species.</p>
+<p>We applied Zinck to meta-analyze five metagenomic studies of CRC. The
+five studies correspond to five different countries for the CRC data,
+which are named “AT” (Australia), “US” (USA), “CN” (China), “DE”
+(Germany), and “FR” (France). The sample sizes are 109, 127, 120, 114,
+and 104, respectively, and the number of cases and controls is roughly
+balanced in each study. We focus on the most abundant <span
+class="math inline">\(300\)</span> species.</p>
 <pre class="r"><code>##################### CRC data species level ##########################
 #######################################################################
 library(randomForest)</code></pre>
@@ -712,83 +772,12 @@ model {
 }
 &quot;
 
-stan.model = stan_model(model_code = zinck_code)</code></pre>
-<pre><code>Trying to compile a simple C file</code></pre>
-<pre><code>Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/BH/include&quot; -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/src/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppParallel/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-In file included from &lt;built-in&gt;:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:88:
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
-namespace Eigen {
-^
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
-namespace Eigen {
-               ^
-               ;
-In file included from &lt;built-in&gt;:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
-#include &lt;complex&gt;
-         ^~~~~~~~~
-3 errors generated.
-make: *** [foo.o] Error 1</code></pre>
-<pre class="r"><code>set.seed(1)
-fitCRC &lt;- vb(stan.model, data=zinLDA_stan_data, algorithm=&quot;meanfield&quot;, iter=10000) ## Fitting the zinck model</code></pre>
-<pre><code>Chain 1: ------------------------------------------------------------
-Chain 1: EXPERIMENTAL ALGORITHM:
-Chain 1:   This procedure has not been thoroughly tested and may be unstable
-Chain 1:   or buggy. The interface is subject to change.
-Chain 1: ------------------------------------------------------------
-Chain 1: 
-Chain 1: 
-Chain 1: 
-Chain 1: Gradient evaluation took 0.161396 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1613.96 seconds.
-Chain 1: Adjust your expectations accordingly!
-Chain 1: 
-Chain 1: 
-Chain 1: Begin eta adaptation.
-Chain 1: Iteration:   1 / 250 [  0%]  (Adaptation)
-Chain 1: Iteration:  50 / 250 [ 20%]  (Adaptation)
-Chain 1: Iteration: 100 / 250 [ 40%]  (Adaptation)
-Chain 1: Iteration: 150 / 250 [ 60%]  (Adaptation)
-Chain 1: Iteration: 200 / 250 [ 80%]  (Adaptation)
-Chain 1: Iteration: 250 / 250 [100%]  (Adaptation)
-Chain 1: Success! Found best value [eta = 0.1].
-Chain 1: 
-Chain 1: Begin stochastic gradient ascent.
-Chain 1:   iter             ELBO   delta_ELBO_mean   delta_ELBO_med   notes 
-Chain 1:    100   -101579506.860             1.000            1.000
-Chain 1:    200    -52846177.365             0.961            1.000
-Chain 1:    300    -32118619.090             0.856            0.922
-Chain 1:    400    -21680285.671             0.762            0.922
-Chain 1:    500    -16659126.019             0.670            0.645
-Chain 1:    600    -13791601.465             0.593            0.645
-Chain 1:    700    -12383978.756             0.525            0.481
-Chain 1:    800    -11531586.036             0.468            0.481
-Chain 1:    900    -11017293.852             0.421            0.301
-Chain 1:   1000    -10701454.874             0.382            0.301
-Chain 1:   1100    -10467099.061             0.284            0.208
-Chain 1:   1200    -10292159.235             0.194            0.114
-Chain 1:   1300    -10140606.084             0.131            0.074
-Chain 1:   1400    -10006940.702             0.084            0.047
-Chain 1:   1500     -9896889.164             0.055            0.030
-Chain 1:   1600     -9803820.064             0.035            0.022
-Chain 1:   1700     -9717709.539             0.025            0.017
-Chain 1:   1800     -9641004.500             0.018            0.015
-Chain 1:   1900     -9571053.625             0.014            0.013
-Chain 1:   2000     -9506415.167             0.012            0.011
-Chain 1:   2100     -9452044.297             0.010            0.009   MEDIAN ELBO CONVERGED
-Chain 1: 
-Chain 1: Drawing a sample of size 1000 from the approximate posterior... 
-Chain 1: COMPLETED.</code></pre>
-<pre><code>Warning: Pareto k diagnostic value is Inf. Resampling is disabled. Decreasing
-tol_rel_obj may help if variational algorithm has terminated prematurely.
-Otherwise consider using sampling instead.</code></pre>
-<pre class="r"><code>theta &lt;- fitCRC@sim[[&quot;est&quot;]][[&quot;theta&quot;]]
+stan.model = stan_model(model_code = zinck_code)
+
+set.seed(1)
+fitCRC &lt;- vb(stan.model, data=zinLDA_stan_data, algorithm=&quot;meanfield&quot;, iter=10000) ## Fitting the zinck model
+
+theta &lt;- fitCRC@sim[[&quot;est&quot;]][[&quot;theta&quot;]]
 beta &lt;- fitCRC@sim[[&quot;est&quot;]][[&quot;beta&quot;]]
 X_tilde_CRC &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy</code></pre>
 <p>We move on to fit a tuned Random Forest model relating the augmented
@@ -797,7 +786,7 @@ class="math inline">\(Y\)</span>.</p>
 <pre class="r"><code>X_aug &lt;- cbind(X,X_tilde_CRC) ## Creating the augmented matrix
 
 ######### Tuning the Random Forest model ####################
-bestmtry &lt;- tuneRF(X_aug,as.factor(Y),stepFactor = 1.5,improve=1e-5,ntree=1000) ## Getting the best mtry hyperparameter</code></pre>
+bestmtry &lt;- tuneRF(X_aug,as.factor(Y),stepFactor = 1.5,improve=1e-5,ntree=1000, plot=FALSE) ## Getting the best mtry hyperparameter</code></pre>
 <pre><code>mtry = 24  OOB error = 26.31% 
 Searching left ...
 mtry = 16   OOB error = 28.92% 
@@ -807,7 +796,6 @@ mtry = 36   OOB error = 24.56%
 0.06622517 1e-05 
 mtry = 54   OOB error = 24.56% 
 0 1e-05 </code></pre>
-<p><img src="figure/CRC.Rmd/rf-model-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>m &lt;- bestmtry[as.numeric(which.min(bestmtry[,&quot;OOBError&quot;])),1]
 df_X &lt;- as.data.frame(X_aug)
 colnames(df_X) &lt;- NULL
@@ -833,6 +821,43 @@ plot.species &lt;- ggplot(data.species)+geom_col(aes(impscores,name),
 
 plot.species</code></pre>
 <p><img src="figure/CRC.Rmd/imp-plots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-imp-plots-1">
+Past versions of imp-plots-1.png
+</button>
+</p>
+<div id="fig-imp-plots-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/figure/CRC.Rmd/imp-plots-1.png" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
