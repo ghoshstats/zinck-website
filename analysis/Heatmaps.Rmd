@@ -1,0 +1,43 @@
+---
+title: "Heatmaps"
+author: "Soham Ghosh"
+date: "2024-06-17"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Comparing the Heatmaps for Original and Knockoff Sample Taxa Matrices
+
+We demonstrate the ability of zinck to capture the compositional and highly sparse nature of microbiome count data by comparing the heatmaps of the original sample taxa matrix $\mathbf{X}$ with its high quality knockoff copy, $\tilde{\mathbf{X}}$.
+
+We consider a toy setting with $20$ samples and $30$ taxa with the library size between $400$ and $500$ for each sample, for a high zero-inflation level of $0.8$. We use the `simulateZINLDA()` function from the `zinLDA` package to generate the original sample taxa matrix. 
+
+```{r heatmaps, fig.width=6, fig.height=4}
+library(zinck)
+library(zinLDA)
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(cowplot)
+
+set.seed(1) 
+N.d=zinLDA::rdu(n=20,min=400,max=500) # Drawing random library sizes between 400, 500
+sim_data = zinLDA::simulateZINLDA(D=20,V=30,N=N.d,K=5,Alpha=0.1,Pi=0.8,a=0.5,b=10)
+X_original <- sim_data$sampleTaxaMatrix ## The original sample taxa count matrix
+
+
+model_zinck <- fit.zinck(X_original, num_clusters=5, method="Gibbs", seed=1)
+Theta <- model_zinck$theta
+Beta <- model_zinck$beta
+
+X_zinck <- generateKnockoff(X_original,Theta,Beta,seed=1)
+rownames(X_zinck) <- rownames(X_original)
+
+heat1 <- draw_heatmap(X_original, "Original")
+heat2 <- draw_heatmap(X_zinck, "Knockoff")
+plot_grid(heat1, heat2, ncol = 2, align="v")
+
+```
+
+It is evident from the above heatmaps that the knockoff copy is almost indistinguishable from the original matrix! This underscores the fact that the knockoff copy preserves the underlying structure of the observed sample taxa count matrix. 

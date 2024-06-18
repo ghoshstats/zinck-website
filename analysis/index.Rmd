@@ -1,5 +1,6 @@
 ---
 title: "Home"
+author: "Soham Ghosh"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +9,66 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+# Welcome to the Zinck Research Website
+
+This website documents the research and experiments related to the `zinck` package.
+
+## Description
+
+Zinck exploits a zero-inflated variant of the Latent Dirichlet Allocation (LDA) model 
+to generate valid knockoffs that capture the key characteristics of microbiome data - 
+mainly its compositional nature and high sparsity. It exhibits the properties of 
+simultaneous variable selection and FDR control to identify microbial biomarkers. 
+This package provides an implementation of zinck, which is trained either using the 
+Automatic Differentiation Variational Inference (ADVI) algorithm or using a collapsed 
+Gibbs sampler, facilitating variable selection for both continuous as well as binary outcomes.
+
+## The hierarchical structure of zinck
+Before going into the structure of zinck, we define the following parameters:
+    
+1. Number of biological samples: $D$, number of microbial features: $p$, number of latent clusters $K$ and the sequencing depth of the $d^{th}$ sample is given by $N_d$, where $d=1,\ldots,D$.
+
+2. $\boldsymbol{\theta}_{d} = (\theta_{d1},\ldots,\theta_{dK})'$ is the vector of cluster mixing probabilities for the $d^{th}$ biological sample, where $d \in 1,2,\ldots,D$
+
+3. $\boldsymbol{\beta}_{k} = (\beta_{k1},\ldots,\beta_{k(p-1)})'$ and $\boldsymbol{\beta}_{kp}=1-\sum_{i=1}^{p-1}\beta_{ki}$ is the vector of feature proportions for each cluster $k=1,2,\ldots,K$.
+
+4. $\mathbf{z}_{d}=\left(z_{d1},\ldots,z_{dN_{d}}\right)'$ is the vector of cluster assignments for the $d^{th}$ biological sample. For instance, $z_{dn}=k$ implies that the $n^{th}$ sequencing read in the $d^{th}$ sample belongs to the $k^{th}$ cluster.
+
+5. $\mathbf{w}_{d}=\left(w_{d1},\ldots,w_{dN_{d}}\right)'$ is the vector of the features drawn for each sequencing read for the $d^{th}$ biological sample.
+
+6. $\boldsymbol{\alpha}=(\alpha,\ldots,\alpha)^{K \times 1}$: symmetric hyperparameter of the Dirichlet prior of $\boldsymbol{\theta}_{d}$.
+
+7. $\boldsymbol{\pi}_{k}=(\pi_{k1},\ldots,\pi_{k(p-1)})'$: hyperparameter of the ZIGD distribution specifying the probability of being a structural zero for the $j^{th}$ feature in the $k^{th}$ subcommunity, where $j=1,\ldots,p$ and $k=1,\ldots,K$.
+
+8. $\mathbf{a}=(a,\ldots,a)^{(p-1) \times 1}$ and $\mathbf{b}=(b, \ldots, b)^{(p-1) \times 1}$ are the symmetric hyperparameter vectors on the ZIGD of $\boldsymbol{\beta}_{k}$.
+
+
+It is to be noted that ZIGD here refers to the zero-inflated Generalized Dirichlet distribution.
+
+zinck is a probabilistic hierarchical model with the following specification: 
+
+\[
+\begin{aligned}
+    w_{dn}|z_{dn},\boldsymbol{\beta}_{z_{dn}} & \sim \text{Multinomial}(\boldsymbol{\beta}_{z_{dn}}) \\
+    \boldsymbol{\beta}_{z_{dn}}|\boldsymbol{\pi},\mathbf{a},\mathbf{b} & \sim \text{ZIGD}\left(\pi_{z_{dn}},a,b\right) \\
+    z_{dn}|\theta_{d} & \sim \text{Multinomial}(\theta_{d}) \\
+    \boldsymbol{\theta}_{d} & \sim \text{Dirichlet}(\boldsymbol{\alpha})
+\end{aligned}
+\]
+
+
+We denote the elements of the observed sample taxa matrix $\mathbf{X}^{D \times p}$ by $(x_{dj})$ as the observed read count of the $j^{th}$ taxon for the $d^{th}$ subject: 
+    $$x_{dj}=\sum_{n=1}^{N_d} \mathbb{1}_{\{w_{dn}=j\}}$$
+
+
+## Generating knockoffs using zinck
+
+We can exploit the knockoff generative model to learn the structure of the sample-feature count matrix $\mathbf{X}$ and generate a valid knockoff copy, which is further used for FDR-controlled feature selection. We fit the augmented LDA model to the microbiome count data matrix $\mathbf{X}$. The latent parameters of the model namely, $\theta_{d}$ and $\beta_{k}$ are learnt by approximating their joint posterior distribution via the Automatic Differentiation Variational Inference (ADVI) algorithm or by drawing MCMC samples using a Collapsed Gibbs sampler. We use the learnt parameters $\tilde{\boldsymbol{\theta}}_d, \tilde{\boldsymbol{\beta}}_k$, for $d=1,2,\ldots D$ and $k=1,2,\ldots,K$ to generate a knockoff copy. For each sample $d$, we first sample a cluster allocation $z_{dn}$ from $\text{Multinomial}(1,\tilde{\boldsymbol{\theta}}_d)$ and then we sample a feature $w_{dn}$ from the selected cluster $z_{dn}$, that is, $w_{dn} \sim \text{Multinomial}(1,\tilde{\boldsymbol{\beta}}_{z_{dn}})$. Finally, we form the knockoff matrix $\tilde{\mathbf{X}}^{D \times p} = \{\tilde{x}_{dj}\}$ by cumulating all the taxa read counts per subjects as illustrated previously.
+
+## Pages
+
+- [Heatmaps](Heatmaps.html)
+- [Simulation Experiments](simulation.html)
+- [CRC Analysis](CRC.html)
+- [IBD Analysis](IBD.html)
+

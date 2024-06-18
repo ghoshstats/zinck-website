@@ -1,0 +1,233 @@
+---
+title: "Simulations"
+author: "Soham Ghosh"
+date: "2024-06-17"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Empirical Power and False Discovery Rate for different target thresholds
+
+We take the colon cancer (CRC) dataset which encompasses five distinct studies each originating from different countries. We randomly select roughly half of the samples from each metagenomic study, which are pooled together for further analysis. For the sake of this example, we retain the top 100 most abundant species according to the average proportions. Among these species, we randomly selected 30 biomarkers and simulated both continuous and binary outcomes using the symmetric reformulation of the log-contrast model:
+
+
+$$g(E(y_i))=\sum_{j=1}^{p} \log(\bar{X}_{ij})\beta_j \quad \text{subject to} \quad \sum_{j=1}^{p} \beta_j=0$$
+where g(.) is the link function and $\bar{X}_{ij}$ is the observed proportions based on the count matrix with zero replaced by 0.5 to avoid taking log on zero values. For simulating the continuous responses, the link function g(.) is the identity function, and for simulating the binary responses, the link function g(.) is the logit link function. We adopt the signal strengths in such a way that the zero-sum constraint is satisfied. We replicate a single iteration of this setting for both continuous and binary outcomes.
+
+```{r simulation-setting}
+load("/Users/Patron/Documents/zinLDA research/count.Rdata")
+load("/Users/Patron/Documents/zinLDA research/meta.RData")
+library(rstan)
+library(glmnet)
+library(knockoff)
+library(zinck)
+library(kosel)
+library(dplyr)
+library(reshape2)
+
+generate_data <- function(p,seed){
+  dcount <- count[,order(decreasing=T,colSums(count,na.rm=T),
+                         apply(count,2L,paste,collapse=''))] ## ordering the columns w/ decreasing abundance
+  ####### Randomly sampling patients from 574 observations #######
+  set.seed(seed)
+  sel_index <- rbinom(nrow(meta),size=1,prob=0.5)
+  selected_samples <- which(sel_index==1)
+  meta_selected <- meta[selected_samples,]
+  X <- dcount[selected_samples,]
+  if(p == 100){
+    X1 <- X[,1:p]
+    n = nrow(X1)
+    
+    Five1 = c(-3,3,2.5,-1, -1.5)
+    Five2 = c(3,3,-2,-2,-2)
+    Five3 = c(1,-1,3,-2,-1)
+    Five4 = c(-1,1,2,-1,-1)
+    Five5 = c(3,3,-3,-2,-1)
+    Five6 = c(-1,1,-2,1,1)
+    Five_all <- c(Five1,Five2,Five3,Five4,Five5,Five6)  ## Signals satisfy sum-to-zero constraint ##
+    randBeta <- rep(0,p)
+    set.seed(1)
+    rand_indices <- sample(1:p,size=30,replace=FALSE)  ## Randomly injecting 30 signals out of p=100 ##
+    set.seed(1)
+    randBeta[rand_indices] <- sample(Five_all,size=30,replace=FALSE)
+    
+    W1 <- log_normalize(X1) ## log-normalizing counts to make it compositional
+    
+    ##### Generating continuous responses ######
+    set.seed(1)
+    eps=rnorm(n,mean = 0, sd=1)
+    Y1 <- W1 %*% randBeta + eps
+    
+    ##### Generating binary responses #####
+    set.seed(1)
+    pr = 1/(1+exp(-W1 %*% randBeta))
+    Y1_bin = rbinom(n,1,pr)
+  } else if (p %in% c(200,300,400)) {
+    X1 <- X[,1:p]
+    n = nrow(X1)
+    
+    Five1 = c(-3,3,2.5,-1, -1.5)
+    Five2 = c(3,3,-2,-2,-2)
+    Five3 = c(1,-1,3,-2,-1)
+    Five4 = c(-1,1,2,-1,-1)
+    Five5 = c(3,3,-3,-2,-1)
+    Five6 = c(-1,1,-2,1,1)
+    Five_all <- c(Five1,Five2,Five3,Five4,Five5,Five6)  ## Signals satisfy sum-to-zero constraint ##
+    randBeta <- rep(0,p)
+    set.seed(1)
+    rand_indices <- sample(1:200,size=30,replace=FALSE)  ## Randomly injecting 30 signals out of p=200 ##
+    set.seed(1)
+    randBeta[rand_indices] <- sample(Five_all,size=30,replace=FALSE)
+    
+    W1 <- log_normalize(X1) ## log-normalizing counts to make it compositional
+    
+    ##### Generating continuous responses ######
+    set.seed(1)
+    eps=rnorm(n,mean = 0, sd=1)
+    Y1 <- W1 %*% randBeta + eps
+    
+    ##### Generating binary responses #####
+    set.seed(1)
+    pr = 1/(1+exp(-W1 %*% randBeta))
+    Y1_bin = rbinom(n,1,pr)
+  }
+
+  return(list(Y1 = Y1, X1 = X1,  W1 = W1, Y1_bin = Y1_bin, index = rand_indices))
+}
+
+```
+
+Now, let's look at the case when $p = 100$. On extracting the sample taxa count matrix $X_1$, we train the zinck model using ADVI. Plugging in the learnt parameters into the generative framework of zinck, we generate the knockoff matrix $\tilde{X}_1$.
+
+```{r zinck-fit}
+X1 <- generate_data(p=100, seed=2)$X1
+fit1 <- zinck::fit.zinck(X1,num_clusters = 6, method="ADVI", seed = 1)
+theta <- fit1$theta
+beta <- fit1$beta
+X1_tilde <- generateKnockoff(X1,theta,beta,seed=1)
+
+```
+
+Now that we have generated the knockoff copy, we will fit a model associating the response $Y_1$ (both continuous and binary) with the augmented set of covariates $[X_1,\tilde{X}_1]^{D \times 2p}$. We fit a glmnet model separately for each outcome type and compute the importance statistics for each feature. Then, we detect the non-zero features for four different FDR thresholds 0.05, 0.1, 0.15, and 0.2.
+
+```{r model-fit}
+W1 <- generate_data(p=100, seed=2)$W1 ## Log-Normalized Sample Taxa matrix 
+W_tilde1 <- log_normalize(X1_tilde) ## Log-Normalized Knockoff Matrix
+Y1 <- generate_data(p=100, seed=2)$Y1 ## Continuous Responses
+Y1_bin <- generate_data(p = 100, seed = 2)$Y1_bin ## Binary Responses
+index <- generate_data(p = 100, seed = 2)$index ## True signals
+
+################### Continuous Outcomes #########################
+############## FDR = 0.05 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1,model="glmnet",fdr=0.05)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.05 (Continuous case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.05 (Continuous case):", estimated_power))
+
+############## FDR = 0.1 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1,model="glmnet",fdr=0.1)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.1 (Continuous case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.1 (Continuous case):", estimated_power))
+
+############## FDR = 0.15 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1,model="glmnet",fdr=0.15)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.15 (Continuous case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.15 (Continuous case):", estimated_power))
+
+
+############## FDR = 0.2 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1,model="glmnet",fdr=0.2)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.2 (Continuous case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.2 (Continuous case):", estimated_power))
+
+
+################### Binary Outcomes #########################
+############## FDR = 0.05 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1_bin,model="glmnet",fdr=0.05)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.05 (Binary case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.05 (Binary case):", estimated_power))
+
+############## FDR = 0.1 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1_bin,model="glmnet",fdr=0.1)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.1 (Binary case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.1 (Binary case):", estimated_power))
+
+############## FDR = 0.15 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1_bin,model="glmnet",fdr=0.15)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.15 (Binary case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.15 (Binary case):", estimated_power))
+
+
+############## FDR = 0.2 ###############
+index_est <- zinck.filter(W1,W_tilde1,Y1_bin,model="glmnet",fdr=0.2)
+# ### Evaluation metrics ###
+FN <- sum(index %in% index_est == FALSE) ## False Negatives
+FP <- sum(index_est %in% index == FALSE) ## False Positives
+TP <- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power <- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste("Estimated FDR for Target 0.2 (Binary case):", estimated_FDR))
+print(paste("Estimated Power for Target 0.2 (Binary case):", estimated_power))
+
+
+```
+
+The users are encouraged to play with other values of $p$, such as $p = 200, 300, 400$.
