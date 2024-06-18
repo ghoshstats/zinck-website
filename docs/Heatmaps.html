@@ -420,10 +420,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -516,15 +516,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreeab6400d9cffa98ff7313a24230d9ecd128a1845atargetblankab6400da">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+<a href="https://github.com/ghoshstats/zinck-website/tree/ab6400d9cffa98ff7313a24230d9ecd128a1845a" target="_blank">ab6400d</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreeab6400d9cffa98ff7313a24230d9ecd128a1845atargetblankab6400da"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -534,7 +534,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+<a href="https://github.com/ghoshstats/zinck-website/tree/ab6400d9cffa98ff7313a24230d9ecd128a1845a" target="_blank">ab6400d</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -548,14 +548,11 @@ depends on. Below is the status of the Git repository when the results
 were generated:
 </p>
 <pre><code>
-Untracked files:
-    Untracked:  analysis/CRC.Rmd
-    Untracked:  analysis/Heatmaps.Rmd
-    Untracked:  analysis/IBD.Rmd
-    Untracked:  analysis/simulation.Rmd
+Ignored files:
+    Ignored:    .DS_Store
 
 Unstaged changes:
-    Modified:   analysis/index.Rmd
+    Modified:   analysis/Heatmaps.Rmd
 
 </code></pre>
 <p>
@@ -570,10 +567,74 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/Heatmaps.Rmd</code>) and HTML
+(<code>docs/Heatmaps.html</code>) files. If you’ve configured a remote
+Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ghoshstats/zinck-website/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/Heatmaps.html" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Build and publish the website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/a6c38f81ddf35b0d78bcc099268c13bc646997c5/analysis/Heatmaps.Rmd" target="_blank">a6c38f8</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Add home, experiment, and simulation pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -609,519 +670,20 @@ sim_data = zinLDA::simulateZINLDA(D=20,V=30,N=N.d,K=5,Alpha=0.1,Pi=0.8,a=0.5,b=1
 X_original &lt;- sim_data$sampleTaxaMatrix ## The original sample taxa count matrix
 
 
-model_zinck &lt;- fit.zinck(X_original, num_clusters=5, method=&quot;Gibbs&quot;, seed=1)</code></pre>
-<pre><code>
-  |                                                                                | 0 % elapsed=00s   
-  |=                                                                               | 0 % elapsed=01s, remaining~08m 50s
-  |=                                                                               | 0 % elapsed=01s, remaining~04m 56s
-  |=                                                                               | 1 % elapsed=01s, remaining~03m 40s
-  |=                                                                               | 1 % elapsed=01s, remaining~02m 59s
-  |=                                                                               | 1 % elapsed=02s, remaining~02m 36s
-  |=                                                                               | 1 % elapsed=02s, remaining~02m 22s
-  |==                                                                              | 1 % elapsed=02s, remaining~02m 12s
-  |==                                                                              | 2 % elapsed=02s, remaining~02m 04s
-  |==                                                                              | 2 % elapsed=02s, remaining~01m 58s
-  |==                                                                              | 2 % elapsed=02s, remaining~01m 58s
-  |==                                                                              | 2 % elapsed=03s, remaining~01m 54s
-  |==                                                                              | 2 % elapsed=03s, remaining~01m 50s
-  |===                                                                             | 3 % elapsed=03s, remaining~01m 47s
-  |===                                                                             | 3 % elapsed=03s, remaining~01m 44s
-  |===                                                                             | 3 % elapsed=03s, remaining~01m 41s
-  |===                                                                             | 3 % elapsed=03s, remaining~01m 39s
-  |===                                                                             | 3 % elapsed=03s, remaining~01m 37s
-  |===                                                                             | 4 % elapsed=04s, remaining~01m 35s
-  |====                                                                            | 4 % elapsed=04s, remaining~01m 33s
-  |====                                                                            | 4 % elapsed=04s, remaining~01m 32s
-  |====                                                                            | 4 % elapsed=04s, remaining~01m 30s
-  |====                                                                            | 4 % elapsed=04s, remaining~01m 29s
-  |====                                                                            | 5 % elapsed=04s, remaining~01m 28s
-  |====                                                                            | 5 % elapsed=04s, remaining~01m 26s
-  |====                                                                            | 5 % elapsed=04s, remaining~01m 25s
-  |=====                                                                           | 5 % elapsed=05s, remaining~01m 24s
-  |=====                                                                           | 5 % elapsed=05s, remaining~01m 24s
-  |=====                                                                           | 6 % elapsed=05s, remaining~01m 23s
-  |=====                                                                           | 6 % elapsed=05s, remaining~01m 22s
-  |=====                                                                           | 6 % elapsed=05s, remaining~01m 22s
-  |=====                                                                           | 6 % elapsed=05s, remaining~01m 21s
-  |======                                                                          | 6 % elapsed=05s, remaining~01m 20s
-  |======                                                                          | 7 % elapsed=06s, remaining~01m 20s
-  |======                                                                          | 7 % elapsed=06s, remaining~01m 19s
-  |======                                                                          | 7 % elapsed=06s, remaining~01m 18s
-  |======                                                                          | 7 % elapsed=06s, remaining~01m 18s
-  |======                                                                          | 7 % elapsed=06s, remaining~01m 17s
-  |=======                                                                         | 8 % elapsed=06s, remaining~01m 17s
-  |=======                                                                         | 8 % elapsed=06s, remaining~01m 16s
-  |=======                                                                         | 8 % elapsed=07s, remaining~01m 16s
-  |=======                                                                         | 8 % elapsed=07s, remaining~01m 15s
-  |=======                                                                         | 8 % elapsed=07s, remaining~01m 15s
-  |=======                                                                         | 9 % elapsed=07s, remaining~01m 14s
-  |========                                                                        | 9 % elapsed=07s, remaining~01m 14s
-  |========                                                                        | 9 % elapsed=07s, remaining~01m 14s
-  |========                                                                        | 9 % elapsed=07s, remaining~01m 13s
-  |========                                                                        | 9 % elapsed=08s, remaining~01m 13s
-  |========                                                                        | 10% elapsed=08s, remaining~01m 13s
-  |========                                                                        | 10% elapsed=08s, remaining~01m 12s
-  |========                                                                        | 10% elapsed=08s, remaining~01m 12s
-  |=========                                                                       | 10% elapsed=08s, remaining~01m 12s
-  |=========                                                                       | 10% elapsed=08s, remaining~01m 11s
-  |=========                                                                       | 11% elapsed=08s, remaining~01m 11s
-  |=========                                                                       | 11% elapsed=09s, remaining~01m 11s
-  |=========                                                                       | 11% elapsed=09s, remaining~01m 10s
-  |=========                                                                       | 11% elapsed=09s, remaining~01m 10s
-  |==========                                                                      | 11% elapsed=09s, remaining~01m 09s
-  |==========                                                                      | 12% elapsed=09s, remaining~01m 09s
-  |==========                                                                      | 12% elapsed=09s, remaining~01m 09s
-  |==========                                                                      | 12% elapsed=09s, remaining~01m 08s
-  |==========                                                                      | 12% elapsed=10s, remaining~01m 09s
-  |==========                                                                      | 12% elapsed=10s, remaining~01m 09s
-  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
-  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
-  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
-  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
-  |===========                                                                     | 13% elapsed=10s, remaining~01m 07s
-  |===========                                                                     | 14% elapsed=11s, remaining~01m 07s
-  |============                                                                    | 14% elapsed=11s, remaining~01m 07s
-  |============                                                                    | 14% elapsed=11s, remaining~01m 07s
-  |============                                                                    | 14% elapsed=11s, remaining~01m 06s
-  |============                                                                    | 14% elapsed=11s, remaining~01m 06s
-  |============                                                                    | 15% elapsed=11s, remaining~01m 06s
-  |============                                                                    | 15% elapsed=11s, remaining~01m 06s
-  |============                                                                    | 15% elapsed=12s, remaining~01m 06s
-  |=============                                                                   | 15% elapsed=12s, remaining~01m 05s
-  |=============                                                                   | 15% elapsed=12s, remaining~01m 05s
-  |=============                                                                   | 16% elapsed=12s, remaining~01m 05s
-  |=============                                                                   | 16% elapsed=12s, remaining~01m 05s
-  |=============                                                                   | 16% elapsed=12s, remaining~01m 04s
-  |=============                                                                   | 16% elapsed=12s, remaining~01m 04s
-  |==============                                                                  | 16% elapsed=13s, remaining~01m 04s
-  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
-  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
-  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
-  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
-  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
-  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
-  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
-  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
-  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
-  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
-  |===============                                                                 | 19% elapsed=14s, remaining~01m 02s
-  |================                                                                | 19% elapsed=14s, remaining~01m 02s
-  |================                                                                | 19% elapsed=15s, remaining~01m 02s
-  |================                                                                | 19% elapsed=15s, remaining~01m 02s
-  |================                                                                | 19% elapsed=15s, remaining~01m 02s
-  |================                                                                | 20% elapsed=15s, remaining~01m 02s
-  |================                                                                | 20% elapsed=15s, remaining~01m 02s
-  |================                                                                | 20% elapsed=15s, remaining~01m 01s
-  |=================                                                               | 20% elapsed=16s, remaining~01m 01s
-  |=================                                                               | 20% elapsed=16s, remaining~01m 01s
-  |=================                                                               | 21% elapsed=16s, remaining~01m 01s
-  |=================                                                               | 21% elapsed=16s, remaining~01m 01s
-  |=================                                                               | 21% elapsed=16s, remaining~01m 00s
-  |=================                                                               | 21% elapsed=16s, remaining~01m 00s
-  |==================                                                              | 21% elapsed=16s, remaining~01m 00s
-  |==================                                                              | 22% elapsed=17s, remaining~01m 00s
-  |==================                                                              | 22% elapsed=17s, remaining~01m 00s
-  |==================                                                              | 22% elapsed=17s, remaining~60s
-  |==================                                                              | 22% elapsed=17s, remaining~60s
-  |==================                                                              | 22% elapsed=17s, remaining~60s
-  |===================                                                             | 23% elapsed=17s, remaining~59s
-  |===================                                                             | 23% elapsed=17s, remaining~59s
-  |===================                                                             | 23% elapsed=18s, remaining~59s
-  |===================                                                             | 23% elapsed=18s, remaining~59s
-  |===================                                                             | 23% elapsed=18s, remaining~59s
-  |===================                                                             | 24% elapsed=18s, remaining~58s
-  |====================                                                            | 24% elapsed=18s, remaining~58s
-  |====================                                                            | 24% elapsed=18s, remaining~58s
-  |====================                                                            | 24% elapsed=18s, remaining~58s
-  |====================                                                            | 24% elapsed=19s, remaining~58s
-  |====================                                                            | 25% elapsed=19s, remaining~58s
-  |====================                                                            | 25% elapsed=19s, remaining~57s
-  |====================                                                            | 25% elapsed=19s, remaining~57s
-  |=====================                                                           | 25% elapsed=19s, remaining~57s
-  |=====================                                                           | 25% elapsed=19s, remaining~57s
-  |=====================                                                           | 26% elapsed=20s, remaining~57s
-  |=====================                                                           | 26% elapsed=20s, remaining~57s
-  |=====================                                                           | 26% elapsed=20s, remaining~56s
-  |=====================                                                           | 26% elapsed=20s, remaining~56s
-  |======================                                                          | 26% elapsed=20s, remaining~56s
-  |======================                                                          | 27% elapsed=20s, remaining~56s
-  |======================                                                          | 27% elapsed=20s, remaining~56s
-  |======================                                                          | 27% elapsed=21s, remaining~56s
-  |======================                                                          | 27% elapsed=21s, remaining~55s
-  |======================                                                          | 27% elapsed=21s, remaining~55s
-  |=======================                                                         | 28% elapsed=21s, remaining~55s
-  |=======================                                                         | 28% elapsed=21s, remaining~55s
-  |=======================                                                         | 28% elapsed=21s, remaining~55s
-  |=======================                                                         | 28% elapsed=21s, remaining~54s
-  |=======================                                                         | 28% elapsed=22s, remaining~54s
-  |=======================                                                         | 29% elapsed=22s, remaining~54s
-  |========================                                                        | 29% elapsed=22s, remaining~54s
-  |========================                                                        | 29% elapsed=22s, remaining~54s
-  |========================                                                        | 29% elapsed=22s, remaining~54s
-  |========================                                                        | 29% elapsed=22s, remaining~53s
-  |========================                                                        | 30% elapsed=22s, remaining~53s
-  |========================                                                        | 30% elapsed=23s, remaining~53s
-  |========================                                                        | 30% elapsed=23s, remaining~53s
-  |=========================                                                       | 30% elapsed=23s, remaining~53s
-  |=========================                                                       | 30% elapsed=23s, remaining~53s
-  |=========================                                                       | 31% elapsed=23s, remaining~52s
-  |=========================                                                       | 31% elapsed=23s, remaining~52s
-  |=========================                                                       | 31% elapsed=23s, remaining~52s
-  |=========================                                                       | 31% elapsed=24s, remaining~52s
-  |==========================                                                      | 31% elapsed=24s, remaining~52s
-  |==========================                                                      | 32% elapsed=24s, remaining~52s
-  |==========================                                                      | 32% elapsed=24s, remaining~52s
-  |==========================                                                      | 32% elapsed=24s, remaining~51s
-  |==========================                                                      | 32% elapsed=24s, remaining~51s
-  |==========================                                                      | 32% elapsed=24s, remaining~51s
-  |===========================                                                     | 33% elapsed=25s, remaining~51s
-  |===========================                                                     | 33% elapsed=25s, remaining~51s
-  |===========================                                                     | 33% elapsed=25s, remaining~50s
-  |===========================                                                     | 33% elapsed=25s, remaining~50s
-  |===========================                                                     | 33% elapsed=25s, remaining~50s
-  |===========================                                                     | 34% elapsed=25s, remaining~50s
-  |============================                                                    | 34% elapsed=25s, remaining~50s
-  |============================                                                    | 34% elapsed=26s, remaining~50s
-  |============================                                                    | 34% elapsed=26s, remaining~49s
-  |============================                                                    | 34% elapsed=26s, remaining~49s
-  |============================                                                    | 35% elapsed=26s, remaining~49s
-  |============================                                                    | 35% elapsed=26s, remaining~49s
-  |============================                                                    | 35% elapsed=26s, remaining~49s
-  |=============================                                                   | 35% elapsed=26s, remaining~48s
-  |=============================                                                   | 35% elapsed=26s, remaining~48s
-  |=============================                                                   | 36% elapsed=27s, remaining~48s
-  |=============================                                                   | 36% elapsed=27s, remaining~48s
-  |=============================                                                   | 36% elapsed=27s, remaining~48s
-  |=============================                                                   | 36% elapsed=27s, remaining~48s
-  |==============================                                                  | 36% elapsed=27s, remaining~47s
-  |==============================                                                  | 37% elapsed=27s, remaining~47s
-  |==============================                                                  | 37% elapsed=27s, remaining~47s
-  |==============================                                                  | 37% elapsed=28s, remaining~47s
-  |==============================                                                  | 37% elapsed=28s, remaining~47s
-  |==============================                                                  | 37% elapsed=28s, remaining~47s
-  |===============================                                                 | 38% elapsed=28s, remaining~46s
-  |===============================                                                 | 38% elapsed=28s, remaining~46s
-  |===============================                                                 | 38% elapsed=28s, remaining~46s
-  |===============================                                                 | 38% elapsed=28s, remaining~46s
-  |===============================                                                 | 38% elapsed=29s, remaining~46s
-  |===============================                                                 | 39% elapsed=29s, remaining~46s
-  |================================                                                | 39% elapsed=29s, remaining~45s
-  |================================                                                | 39% elapsed=29s, remaining~45s
-  |================================                                                | 39% elapsed=29s, remaining~45s
-  |================================                                                | 39% elapsed=29s, remaining~45s
-  |================================                                                | 40% elapsed=29s, remaining~45s
-  |================================                                                | 40% elapsed=30s, remaining~45s
-  |================================                                                | 40% elapsed=30s, remaining~45s
-  |=================================                                               | 40% elapsed=30s, remaining~44s
-  |=================================                                               | 40% elapsed=30s, remaining~44s
-  |=================================                                               | 41% elapsed=30s, remaining~44s
-  |=================================                                               | 41% elapsed=30s, remaining~44s
-  |=================================                                               | 41% elapsed=31s, remaining~44s
-  |=================================                                               | 41% elapsed=31s, remaining~44s
-  |==================================                                              | 41% elapsed=31s, remaining~44s
-  |==================================                                              | 42% elapsed=31s, remaining~43s
-  |==================================                                              | 42% elapsed=31s, remaining~43s
-  |==================================                                              | 42% elapsed=31s, remaining~43s
-  |==================================                                              | 42% elapsed=31s, remaining~43s
-  |==================================                                              | 42% elapsed=32s, remaining~43s
-  |===================================                                             | 43% elapsed=32s, remaining~43s
-  |===================================                                             | 43% elapsed=32s, remaining~43s
-  |===================================                                             | 43% elapsed=32s, remaining~42s
-  |===================================                                             | 43% elapsed=32s, remaining~42s
-  |===================================                                             | 43% elapsed=32s, remaining~42s
-  |===================================                                             | 44% elapsed=32s, remaining~42s
-  |====================================                                            | 44% elapsed=33s, remaining~42s
-  |====================================                                            | 44% elapsed=33s, remaining~42s
-  |====================================                                            | 44% elapsed=33s, remaining~41s
-  |====================================                                            | 44% elapsed=33s, remaining~41s
-  |====================================                                            | 45% elapsed=33s, remaining~41s
-  |====================================                                            | 45% elapsed=33s, remaining~41s
-  |====================================                                            | 45% elapsed=33s, remaining~41s
-  |=====================================                                           | 45% elapsed=34s, remaining~41s
-  |=====================================                                           | 45% elapsed=34s, remaining~41s
-  |=====================================                                           | 46% elapsed=34s, remaining~40s
-  |=====================================                                           | 46% elapsed=34s, remaining~40s
-  |=====================================                                           | 46% elapsed=34s, remaining~40s
-  |=====================================                                           | 46% elapsed=34s, remaining~40s
-  |======================================                                          | 46% elapsed=34s, remaining~40s
-  |======================================                                          | 47% elapsed=35s, remaining~40s
-  |======================================                                          | 47% elapsed=35s, remaining~39s
-  |======================================                                          | 47% elapsed=35s, remaining~39s
-  |======================================                                          | 47% elapsed=35s, remaining~39s
-  |======================================                                          | 47% elapsed=35s, remaining~39s
-  |=======================================                                         | 48% elapsed=35s, remaining~39s
-  |=======================================                                         | 48% elapsed=35s, remaining~39s
-  |=======================================                                         | 48% elapsed=36s, remaining~38s
-  |=======================================                                         | 48% elapsed=36s, remaining~38s
-  |=======================================                                         | 48% elapsed=36s, remaining~38s
-  |=======================================                                         | 49% elapsed=36s, remaining~38s
-  |========================================                                        | 49% elapsed=36s, remaining~38s
-  |========================================                                        | 49% elapsed=36s, remaining~38s
-  |========================================                                        | 49% elapsed=36s, remaining~38s
-  |========================================                                        | 49% elapsed=37s, remaining~37s
-  |========================================                                        | 50% elapsed=37s, remaining~37s
-  |========================================                                        | 50% elapsed=37s, remaining~37s
-  |========================================                                        | 50% elapsed=37s, remaining~37s
-  |=========================================                                       | 50% elapsed=37s, remaining~37s
-  |=========================================                                       | 50% elapsed=37s, remaining~37s
-  |=========================================                                       | 51% elapsed=37s, remaining~37s
-  |=========================================                                       | 51% elapsed=38s, remaining~36s
-  |=========================================                                       | 51% elapsed=38s, remaining~36s
-  |=========================================                                       | 51% elapsed=38s, remaining~36s
-  |==========================================                                      | 51% elapsed=38s, remaining~36s
-  |==========================================                                      | 52% elapsed=38s, remaining~36s
-  |==========================================                                      | 52% elapsed=38s, remaining~36s
-  |==========================================                                      | 52% elapsed=38s, remaining~36s
-  |==========================================                                      | 52% elapsed=39s, remaining~35s
-  |==========================================                                      | 52% elapsed=39s, remaining~35s
-  |===========================================                                     | 53% elapsed=39s, remaining~35s
-  |===========================================                                     | 53% elapsed=39s, remaining~35s
-  |===========================================                                     | 53% elapsed=39s, remaining~35s
-  |===========================================                                     | 53% elapsed=39s, remaining~35s
-  |===========================================                                     | 53% elapsed=40s, remaining~35s
-  |===========================================                                     | 54% elapsed=40s, remaining~34s
-  |============================================                                    | 54% elapsed=40s, remaining~34s
-  |============================================                                    | 54% elapsed=40s, remaining~34s
-  |============================================                                    | 54% elapsed=40s, remaining~34s
-  |============================================                                    | 54% elapsed=40s, remaining~34s
-  |============================================                                    | 55% elapsed=40s, remaining~34s
-  |============================================                                    | 55% elapsed=41s, remaining~33s
-  |============================================                                    | 55% elapsed=41s, remaining~33s
-  |=============================================                                   | 55% elapsed=41s, remaining~33s
-  |=============================================                                   | 55% elapsed=41s, remaining~33s
-  |=============================================                                   | 56% elapsed=41s, remaining~33s
-  |=============================================                                   | 56% elapsed=41s, remaining~33s
-  |=============================================                                   | 56% elapsed=41s, remaining~33s
-  |=============================================                                   | 56% elapsed=42s, remaining~32s
-  |==============================================                                  | 56% elapsed=42s, remaining~32s
-  |==============================================                                  | 57% elapsed=42s, remaining~32s
-  |==============================================                                  | 57% elapsed=42s, remaining~32s
-  |==============================================                                  | 57% elapsed=42s, remaining~32s
-  |==============================================                                  | 57% elapsed=42s, remaining~32s
-  |==============================================                                  | 57% elapsed=42s, remaining~31s
-  |===============================================                                 | 58% elapsed=43s, remaining~31s
-  |===============================================                                 | 58% elapsed=43s, remaining~31s
-  |===============================================                                 | 58% elapsed=43s, remaining~31s
-  |===============================================                                 | 58% elapsed=43s, remaining~31s
-  |===============================================                                 | 58% elapsed=43s, remaining~31s
-  |===============================================                                 | 59% elapsed=43s, remaining~31s
-  |================================================                                | 59% elapsed=44s, remaining~31s
-  |================================================                                | 59% elapsed=44s, remaining~30s
-  |================================================                                | 59% elapsed=44s, remaining~30s
-  |================================================                                | 59% elapsed=44s, remaining~30s
-  |================================================                                | 60% elapsed=44s, remaining~30s
-  |================================================                                | 60% elapsed=44s, remaining~30s
-  |================================================                                | 60% elapsed=44s, remaining~30s
-  |=================================================                               | 60% elapsed=45s, remaining~29s
-  |=================================================                               | 60% elapsed=45s, remaining~29s
-  |=================================================                               | 61% elapsed=45s, remaining~29s
-  |=================================================                               | 61% elapsed=45s, remaining~29s
-  |=================================================                               | 61% elapsed=45s, remaining~29s
-  |=================================================                               | 61% elapsed=45s, remaining~29s
-  |==================================================                              | 61% elapsed=45s, remaining~29s
-  |==================================================                              | 62% elapsed=46s, remaining~28s
-  |==================================================                              | 62% elapsed=46s, remaining~28s
-  |==================================================                              | 62% elapsed=46s, remaining~28s
-  |==================================================                              | 62% elapsed=46s, remaining~28s
-  |==================================================                              | 62% elapsed=46s, remaining~28s
-  |===================================================                             | 63% elapsed=46s, remaining~28s
-  |===================================================                             | 63% elapsed=47s, remaining~28s
-  |===================================================                             | 63% elapsed=47s, remaining~27s
-  |===================================================                             | 63% elapsed=47s, remaining~27s
-  |===================================================                             | 63% elapsed=47s, remaining~27s
-  |===================================================                             | 64% elapsed=47s, remaining~27s
-  |====================================================                            | 64% elapsed=47s, remaining~27s
-  |====================================================                            | 64% elapsed=47s, remaining~27s
-  |====================================================                            | 64% elapsed=48s, remaining~27s
-  |====================================================                            | 64% elapsed=48s, remaining~26s
-  |====================================================                            | 65% elapsed=48s, remaining~26s
-  |====================================================                            | 65% elapsed=48s, remaining~26s
-  |====================================================                            | 65% elapsed=48s, remaining~26s
-  |=====================================================                           | 65% elapsed=48s, remaining~26s
-  |=====================================================                           | 65% elapsed=48s, remaining~26s
-  |=====================================================                           | 66% elapsed=49s, remaining~25s
-  |=====================================================                           | 66% elapsed=49s, remaining~25s
-  |=====================================================                           | 66% elapsed=49s, remaining~25s
-  |=====================================================                           | 66% elapsed=49s, remaining~25s
-  |======================================================                          | 66% elapsed=49s, remaining~25s
-  |======================================================                          | 67% elapsed=49s, remaining~25s
-  |======================================================                          | 67% elapsed=49s, remaining~25s
-  |======================================================                          | 67% elapsed=49s, remaining~24s
-  |======================================================                          | 67% elapsed=50s, remaining~24s
-  |======================================================                          | 67% elapsed=50s, remaining~24s
-  |=======================================================                         | 68% elapsed=50s, remaining~24s
-  |=======================================================                         | 68% elapsed=50s, remaining~24s
-  |=======================================================                         | 68% elapsed=50s, remaining~24s
-  |=======================================================                         | 68% elapsed=50s, remaining~24s
-  |=======================================================                         | 68% elapsed=51s, remaining~23s
-  |=======================================================                         | 69% elapsed=51s, remaining~23s
-  |========================================================                        | 69% elapsed=51s, remaining~23s
-  |========================================================                        | 69% elapsed=51s, remaining~23s
-  |========================================================                        | 69% elapsed=51s, remaining~23s
-  |========================================================                        | 69% elapsed=51s, remaining~23s
-  |========================================================                        | 70% elapsed=51s, remaining~22s
-  |========================================================                        | 70% elapsed=52s, remaining~22s
-  |========================================================                        | 70% elapsed=52s, remaining~22s
-  |=========================================================                       | 70% elapsed=52s, remaining~22s
-  |=========================================================                       | 70% elapsed=52s, remaining~22s
-  |=========================================================                       | 71% elapsed=52s, remaining~22s
-  |=========================================================                       | 71% elapsed=52s, remaining~22s
-  |=========================================================                       | 71% elapsed=52s, remaining~21s
-  |=========================================================                       | 71% elapsed=53s, remaining~21s
-  |==========================================================                      | 71% elapsed=53s, remaining~21s
-  |==========================================================                      | 72% elapsed=53s, remaining~21s
-  |==========================================================                      | 72% elapsed=53s, remaining~21s
-  |==========================================================                      | 72% elapsed=53s, remaining~21s
-  |==========================================================                      | 72% elapsed=53s, remaining~21s
-  |==========================================================                      | 72% elapsed=53s, remaining~20s
-  |===========================================================                     | 73% elapsed=54s, remaining~20s
-  |===========================================================                     | 73% elapsed=54s, remaining~20s
-  |===========================================================                     | 73% elapsed=54s, remaining~20s
-  |===========================================================                     | 73% elapsed=54s, remaining~20s
-  |===========================================================                     | 73% elapsed=54s, remaining~20s
-  |===========================================================                     | 74% elapsed=54s, remaining~20s
-  |============================================================                    | 74% elapsed=55s, remaining~19s
-  |============================================================                    | 74% elapsed=55s, remaining~19s
-  |============================================================                    | 74% elapsed=55s, remaining~19s
-  |============================================================                    | 74% elapsed=55s, remaining~19s
-  |============================================================                    | 75% elapsed=55s, remaining~19s
-  |============================================================                    | 75% elapsed=55s, remaining~19s
-  |============================================================                    | 75% elapsed=55s, remaining~18s
-  |=============================================================                   | 75% elapsed=56s, remaining~18s
-  |=============================================================                   | 75% elapsed=56s, remaining~18s
-  |=============================================================                   | 76% elapsed=56s, remaining~18s
-  |=============================================================                   | 76% elapsed=56s, remaining~18s
-  |=============================================================                   | 76% elapsed=56s, remaining~18s
-  |=============================================================                   | 76% elapsed=56s, remaining~18s
-  |==============================================================                  | 76% elapsed=56s, remaining~17s
-  |==============================================================                  | 77% elapsed=57s, remaining~17s
-  |==============================================================                  | 77% elapsed=57s, remaining~17s
-  |==============================================================                  | 77% elapsed=57s, remaining~17s
-  |==============================================================                  | 77% elapsed=57s, remaining~17s
-  |==============================================================                  | 77% elapsed=57s, remaining~17s
-  |===============================================================                 | 78% elapsed=57s, remaining~17s
-  |===============================================================                 | 78% elapsed=58s, remaining~16s
-  |===============================================================                 | 78% elapsed=58s, remaining~16s
-  |===============================================================                 | 78% elapsed=58s, remaining~16s
-  |===============================================================                 | 78% elapsed=58s, remaining~16s
-  |===============================================================                 | 79% elapsed=58s, remaining~16s
-  |================================================================                | 79% elapsed=58s, remaining~16s
-  |================================================================                | 79% elapsed=58s, remaining~16s
-  |================================================================                | 79% elapsed=59s, remaining~15s
-  |================================================================                | 79% elapsed=59s, remaining~15s
-  |================================================================                | 80% elapsed=59s, remaining~15s
-  |================================================================                | 80% elapsed=59s, remaining~15s
-  |================================================================                | 80% elapsed=59s, remaining~15s
-  |=================================================================               | 80% elapsed=59s, remaining~15s
-  |=================================================================               | 80% elapsed=59s, remaining~14s
-  |=================================================================               | 81% elapsed=60s, remaining~14s
-  |=================================================================               | 81% elapsed=60s, remaining~14s
-  |=================================================================               | 81% elapsed=60s, remaining~14s
-  |=================================================================               | 81% elapsed=01m 00s, remaining~14s
-  |==================================================================              | 81% elapsed=01m 00s, remaining~14s
-  |==================================================================              | 82% elapsed=01m 00s, remaining~14s
-  |==================================================================              | 82% elapsed=01m 00s, remaining~13s
-  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
-  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
-  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
-  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
-  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
-  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
-  |===================================================================             | 83% elapsed=01m 02s, remaining~12s
-  |===================================================================             | 83% elapsed=01m 02s, remaining~12s
-  |===================================================================             | 84% elapsed=01m 02s, remaining~12s
-  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
-  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
-  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
-  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
-  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
-  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
-  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
-  |=====================================================================           | 85% elapsed=01m 03s, remaining~11s
-  |=====================================================================           | 85% elapsed=01m 03s, remaining~11s
-  |=====================================================================           | 86% elapsed=01m 03s, remaining~11s
-  |=====================================================================           | 86% elapsed=01m 04s, remaining~11s
-  |=====================================================================           | 86% elapsed=01m 04s, remaining~10s
-  |=====================================================================           | 86% elapsed=01m 04s, remaining~10s
-  |======================================================================          | 86% elapsed=01m 04s, remaining~10s
-  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
-  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
-  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
-  |======================================================================          | 87% elapsed=01m 05s, remaining~09s
-  |======================================================================          | 87% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
-  |=======================================================================         | 89% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 90% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 90% elapsed=01m 06s, remaining~08s
-  |========================================================================        | 90% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 90% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 90% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
-  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
-  |==========================================================================      | 91% elapsed=01m 08s, remaining~06s
-  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
-  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
-  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
-  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
-  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
-  |===========================================================================     | 93% elapsed=01m 08s, remaining~05s
-  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
-  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
-  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
-  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
-  |===========================================================================     | 94% elapsed=01m 09s, remaining~05s
-  |============================================================================    | 94% elapsed=01m 09s, remaining~05s
-  |============================================================================    | 94% elapsed=01m 09s, remaining~04s
-  |============================================================================    | 94% elapsed=01m 10s, remaining~04s
-  |============================================================================    | 94% elapsed=01m 10s, remaining~04s
-  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
-  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
-  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
-  |=============================================================================   | 95% elapsed=01m 10s, remaining~04s
-  |=============================================================================   | 95% elapsed=01m 11s, remaining~03s
-  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
-  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
-  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
-  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
-  |==============================================================================  | 96% elapsed=01m 11s, remaining~03s
-  |==============================================================================  | 97% elapsed=01m 11s, remaining~03s
-  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
-  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
-  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
-  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
-  |=============================================================================== | 98% elapsed=01m 12s, remaining~02s
-  |=============================================================================== | 98% elapsed=01m 12s, remaining~02s
-  |=============================================================================== | 98% elapsed=01m 12s, remaining~01s
-  |=============================================================================== | 98% elapsed=01m 13s, remaining~01s
-  |=============================================================================== | 98% elapsed=01m 13s, remaining~01s
-  |=============================================================================== | 99% elapsed=01m 13s, remaining~01s
-  |================================================================================| 99% elapsed=01m 13s, remaining~01s
-  |================================================================================| 99% elapsed=01m 13s, remaining~01s
-  |================================================================================| 99% elapsed=01m 13s, remaining~01s
-  |================================================================================| 99% elapsed=01m 13s, remaining~00s
-  |================================================================================| 100% elapsed=01m 14s, remaining~00s
-  |================================================================================| 100% elapsed=01m 14s, remaining~00s
-  |================================================================================| 100% elapsed=01m 14s, remaining~00s</code></pre>
-<pre class="r"><code>Theta &lt;- model_zinck$theta
+model_zinck &lt;- fit.zinck(X_original, num_clusters=5, method=&quot;Gibbs&quot;, seed=1)
+Theta &lt;- model_zinck$theta
 Beta &lt;- model_zinck$beta
 
 X_zinck &lt;- generateKnockoff(X_original,Theta,Beta,seed=1)
-rownames(X_zinck) &lt;- rownames(X_original)
-
-heat1 &lt;- draw_heatmap(X_original, &quot;Original&quot;)
+rownames(X_zinck) &lt;- rownames(X_original)</code></pre>
+<p>We will now visualize the heatmaps of the original matrix and its
+corresponding knockoff copy. The function applies an arcsinh
+transformation to the data for normalization and better visualization of
+abundance patterns and zero inflation within the sample taxa matrix.</p>
+<pre class="r"><code>heat1 &lt;- draw_heatmap(X_original, &quot;Original&quot;)
 heat2 &lt;- draw_heatmap(X_zinck, &quot;Knockoff&quot;)
 plot_grid(heat1, heat2, ncol = 2, align=&quot;v&quot;)</code></pre>
-<p><img src="figure/Heatmaps.Rmd/heatmaps-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="figure/Heatmaps.Rmd/heatmap-comparison-1.png" width="1440" style="display: block; margin: auto;" /></p>
 <p>It is evident from the above heatmaps that the knockoff copy is
 almost indistinguishable from the original matrix! This underscores the
 fact that the knockoff copy preserves the underlying structure of the
