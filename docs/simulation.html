@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Soham Ghosh" />
+
+<meta name="date" content="2024-06-17" />
+
+<title>Simulations</title>
+
+<script src="site_libs/header-attrs-2.22/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">zinck-website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Simulations</h1>
+<h4 class="author">Soham Ghosh</h4>
+<h4 class="date">2024-06-17</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-06-18
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>zinck-website/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240617code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20240617)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20240617code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20240617)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Untracked files:
+    Untracked:  analysis/CRC.Rmd
+    Untracked:  analysis/Heatmaps.Rmd
+    Untracked:  analysis/IBD.Rmd
+    Untracked:  analysis/simulation.Rmd
+
+Unstaged changes:
+    Modified:   analysis/index.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div
+id="empirical-power-and-false-discovery-rate-for-different-target-thresholds"
+class="section level2">
+<h2>Empirical Power and False Discovery Rate for different target
+thresholds</h2>
+<p>We take the colon cancer (CRC) dataset which encompasses five
+distinct studies each originating from different countries. We randomly
+select roughly half of the samples from each metagenomic study, which
+are pooled together for further analysis. For the sake of this example,
+we retain the top 100 most abundant species according to the average
+proportions. Among these species, we randomly selected 30 biomarkers and
+simulated both continuous and binary outcomes using the symmetric
+reformulation of the log-contrast model:</p>
+<p><span class="math display">\[g(E(y_i))=\sum_{j=1}^{p}
+\log(\bar{X}_{ij})\beta_j \quad \text{subject to} \quad \sum_{j=1}^{p}
+\beta_j=0\]</span> where g(.) is the link function and <span
+class="math inline">\(\bar{X}_{ij}\)</span> is the observed proportions
+based on the count matrix with zero replaced by 0.5 to avoid taking log
+on zero values. For simulating the continuous responses, the link
+function g(.) is the identity function, and for simulating the binary
+responses, the link function g(.) is the logit link function. We adopt
+the signal strengths in such a way that the zero-sum constraint is
+satisfied. We replicate a single iteration of this setting for both
+continuous and binary outcomes.</p>
+<pre class="r"><code>load(&quot;/Users/Patron/Documents/zinLDA research/count.Rdata&quot;)
+load(&quot;/Users/Patron/Documents/zinLDA research/meta.RData&quot;)
+library(rstan)</code></pre>
+<pre><code>Loading required package: StanHeaders</code></pre>
+<pre><code>Loading required package: ggplot2</code></pre>
+<pre><code>rstan (Version 2.21.8, GitRev: 2e1f913d3ca3)</code></pre>
+<pre><code>For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)</code></pre>
+<pre class="r"><code>library(glmnet)</code></pre>
+<pre><code>Loading required package: Matrix</code></pre>
+<pre><code>Loaded glmnet 4.1-7</code></pre>
+<pre class="r"><code>library(knockoff)
+library(zinck)
+library(kosel)
+library(dplyr)</code></pre>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(reshape2)
+
+generate_data &lt;- function(p,seed){
+  dcount &lt;- count[,order(decreasing=T,colSums(count,na.rm=T),
+                         apply(count,2L,paste,collapse=&#39;&#39;))] ## ordering the columns w/ decreasing abundance
+  ####### Randomly sampling patients from 574 observations #######
+  set.seed(seed)
+  sel_index &lt;- rbinom(nrow(meta),size=1,prob=0.5)
+  selected_samples &lt;- which(sel_index==1)
+  meta_selected &lt;- meta[selected_samples,]
+  X &lt;- dcount[selected_samples,]
+  if(p == 100){
+    X1 &lt;- X[,1:p]
+    n = nrow(X1)
+    
+    Five1 = c(-3,3,2.5,-1, -1.5)
+    Five2 = c(3,3,-2,-2,-2)
+    Five3 = c(1,-1,3,-2,-1)
+    Five4 = c(-1,1,2,-1,-1)
+    Five5 = c(3,3,-3,-2,-1)
+    Five6 = c(-1,1,-2,1,1)
+    Five_all &lt;- c(Five1,Five2,Five3,Five4,Five5,Five6)  ## Signals satisfy sum-to-zero constraint ##
+    randBeta &lt;- rep(0,p)
+    set.seed(1)
+    rand_indices &lt;- sample(1:p,size=30,replace=FALSE)  ## Randomly injecting 30 signals out of p=100 ##
+    set.seed(1)
+    randBeta[rand_indices] &lt;- sample(Five_all,size=30,replace=FALSE)
+    
+    W1 &lt;- log_normalize(X1) ## log-normalizing counts to make it compositional
+    
+    ##### Generating continuous responses ######
+    set.seed(1)
+    eps=rnorm(n,mean = 0, sd=1)
+    Y1 &lt;- W1 %*% randBeta + eps
+    
+    ##### Generating binary responses #####
+    set.seed(1)
+    pr = 1/(1+exp(-W1 %*% randBeta))
+    Y1_bin = rbinom(n,1,pr)
+  } else if (p %in% c(200,300,400)) {
+    X1 &lt;- X[,1:p]
+    n = nrow(X1)
+    
+    Five1 = c(-3,3,2.5,-1, -1.5)
+    Five2 = c(3,3,-2,-2,-2)
+    Five3 = c(1,-1,3,-2,-1)
+    Five4 = c(-1,1,2,-1,-1)
+    Five5 = c(3,3,-3,-2,-1)
+    Five6 = c(-1,1,-2,1,1)
+    Five_all &lt;- c(Five1,Five2,Five3,Five4,Five5,Five6)  ## Signals satisfy sum-to-zero constraint ##
+    randBeta &lt;- rep(0,p)
+    set.seed(1)
+    rand_indices &lt;- sample(1:200,size=30,replace=FALSE)  ## Randomly injecting 30 signals out of p=200 ##
+    set.seed(1)
+    randBeta[rand_indices] &lt;- sample(Five_all,size=30,replace=FALSE)
+    
+    W1 &lt;- log_normalize(X1) ## log-normalizing counts to make it compositional
+    
+    ##### Generating continuous responses ######
+    set.seed(1)
+    eps=rnorm(n,mean = 0, sd=1)
+    Y1 &lt;- W1 %*% randBeta + eps
+    
+    ##### Generating binary responses #####
+    set.seed(1)
+    pr = 1/(1+exp(-W1 %*% randBeta))
+    Y1_bin = rbinom(n,1,pr)
+  }
+
+  return(list(Y1 = Y1, X1 = X1,  W1 = W1, Y1_bin = Y1_bin, index = rand_indices))
+}</code></pre>
+<p>Now, let’s look at the case when <span class="math inline">\(p =
+100\)</span>. On extracting the sample taxa count matrix <span
+class="math inline">\(X_1\)</span>, we train the zinck model using ADVI.
+Plugging in the learnt parameters into the generative framework of
+zinck, we generate the knockoff matrix <span
+class="math inline">\(\tilde{X}_1\)</span>.</p>
+<pre class="r"><code>X1 &lt;- generate_data(p=100, seed=2)$X1
+fit1 &lt;- zinck::fit.zinck(X1,num_clusters = 6, method=&quot;ADVI&quot;, seed = 1)</code></pre>
+<pre><code>Trying to compile a simple C file</code></pre>
+<pre><code>Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/BH/include&quot; -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/src/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppParallel/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
+In file included from &lt;built-in&gt;:1:
+In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
+In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:88:
+/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
+namespace Eigen {
+^
+/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
+namespace Eigen {
+               ^
+               ;
+In file included from &lt;built-in&gt;:1:
+In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
+/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
+#include &lt;complex&gt;
+         ^~~~~~~~~
+3 errors generated.
+make: *** [foo.o] Error 1
+Chain 1: ------------------------------------------------------------
+Chain 1: EXPERIMENTAL ALGORITHM:
+Chain 1:   This procedure has not been thoroughly tested and may be unstable
+Chain 1:   or buggy. The interface is subject to change.
+Chain 1: ------------------------------------------------------------
+Chain 1: 
+Chain 1: 
+Chain 1: 
+Chain 1: Gradient evaluation took 0.013091 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 130.91 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Begin eta adaptation.
+Chain 1: Iteration:   1 / 250 [  0%]  (Adaptation)
+Chain 1: Iteration:  50 / 250 [ 20%]  (Adaptation)
+Chain 1: Iteration: 100 / 250 [ 40%]  (Adaptation)
+Chain 1: Iteration: 150 / 250 [ 60%]  (Adaptation)
+Chain 1: Iteration: 200 / 250 [ 80%]  (Adaptation)
+Chain 1: Iteration: 250 / 250 [100%]  (Adaptation)
+Chain 1: Success! Found best value [eta = 0.1].
+Chain 1: 
+Chain 1: Begin stochastic gradient ascent.
+Chain 1:   iter             ELBO   delta_ELBO_mean   delta_ELBO_med   notes 
+Chain 1:    100    -15973492.527             1.000            1.000
+Chain 1:    200     -8690390.660             0.919            1.000
+Chain 1:    300     -5775030.814             0.781            0.838
+Chain 1:    400     -4505025.584             0.656            0.838
+Chain 1:    500     -3902911.200             0.556            0.505
+Chain 1:    600     -3632699.792             0.476            0.505
+Chain 1:    700     -3505002.928             0.413            0.282
+Chain 1:    800     -3433489.203             0.364            0.282
+Chain 1:    900     -3389828.201             0.325            0.154
+Chain 1:   1000     -3356212.590             0.293            0.154
+Chain 1:   1100     -3327328.773             0.194            0.074
+Chain 1:   1200     -3302681.095             0.111            0.036
+Chain 1:   1300     -3281220.678             0.061            0.021
+Chain 1:   1400     -3260946.832             0.034            0.013
+Chain 1:   1500     -3237468.494             0.019            0.010
+Chain 1:   1600     -3216932.441             0.012            0.009   MEDIAN ELBO CONVERGED
+Chain 1: 
+Chain 1: Drawing a sample of size 1000 from the approximate posterior... 
+Chain 1: COMPLETED.</code></pre>
+<pre class="r"><code>theta &lt;- fit1$theta
+beta &lt;- fit1$beta
+X1_tilde &lt;- generateKnockoff(X1,theta,beta,seed=1)</code></pre>
+<p>Now that we have generated the knockoff copy, we will fit a model
+associating the response <span class="math inline">\(Y_1\)</span> (both
+continuous and binary) with the augmented set of covariates <span
+class="math inline">\([X_1,\tilde{X}_1]^{D \times 2p}\)</span>. We fit a
+glmnet model separately for each outcome type and compute the importance
+statistics for each feature. Then, we detect the non-zero features for
+four different FDR thresholds 0.05, 0.1, 0.15, and 0.2.</p>
+<pre class="r"><code>W1 &lt;- generate_data(p=100, seed=2)$W1 ## Log-Normalized Sample Taxa matrix 
+W_tilde1 &lt;- log_normalize(X1_tilde) ## Log-Normalized Knockoff Matrix
+Y1 &lt;- generate_data(p=100, seed=2)$Y1 ## Continuous Responses
+Y1_bin &lt;- generate_data(p = 100, seed = 2)$Y1_bin ## Binary Responses
+index &lt;- generate_data(p = 100, seed = 2)$index ## True signals
+
+################### Continuous Outcomes #########################
+############## FDR = 0.05 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1,model=&quot;glmnet&quot;,fdr=0.05)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 14 20 21 28 33 34 35 37 38 39 42 43 44 51 54 59 68 70 73 74 79 82 83
+[26] 84 85 87 96 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.05 (Continuous case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.05 (Continuous case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.05 (Continuous case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.05 (Continuous case): 1&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.1 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1,model=&quot;glmnet&quot;,fdr=0.1)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 14 20 21 28 33 34 35 37 38 39 42 43 44 51 54 59 68 70 73 74 79 82 83
+[26] 84 85 87 96 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.1 (Continuous case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.1 (Continuous case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.1 (Continuous case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.1 (Continuous case): 1&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.15 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1,model=&quot;glmnet&quot;,fdr=0.15)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 14 20 21 28 33 34 35 37 38 39 42 43 44 51 54 59 68 70 73 74 79 82 83
+[26] 84 85 87 96 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.15 (Continuous case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.15 (Continuous case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.15 (Continuous case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.15 (Continuous case): 1&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.2 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1,model=&quot;glmnet&quot;,fdr=0.2)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 14 20 21 28 33 34 35 37 38 39 42 43 44 51 54 59 68 70 73 74 79 82 83
+[26] 84 85 87 96 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.2 (Continuous case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Continuous case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.2 (Continuous case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.2 (Continuous case): 1&quot;</code></pre>
+<pre class="r"><code>################### Binary Outcomes #########################
+############## FDR = 0.05 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1_bin,model=&quot;glmnet&quot;,fdr=0.05)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  7 20 28 33 34 35 37 38 43 44 54 59 68 70 73 74 82 87 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.05 (Binary case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.05 (Binary case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.05 (Binary case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.05 (Binary case): 0.633333333333333&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.1 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1_bin,model=&quot;glmnet&quot;,fdr=0.1)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 20 28 33 34 35 37 38 43 44 54 59 68 70 73 74 82 87 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.1 (Binary case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.1 (Binary case): 0&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.1 (Binary case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.1 (Binary case): 0.666666666666667&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.15 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1_bin,model=&quot;glmnet&quot;,fdr=0.15)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 20 21 28 33 34 35 37 38 43 44 54 59 63 68 70 73 74 82 84 87 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.15 (Binary case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.15 (Binary case): 0.0434782608695652&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.15 (Binary case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.15 (Binary case): 0.733333333333333&quot;</code></pre>
+<pre class="r"><code>############## FDR = 0.2 ###############
+index_est &lt;- zinck.filter(W1,W_tilde1,Y1_bin,model=&quot;glmnet&quot;,fdr=0.2)</code></pre>
+<pre><code>
+Selected variables:
+ [1]  1  7 20 21 28 33 34 35 37 38 43 44 51 54 59 63 68 70 73 74 82 84 87 97</code></pre>
+<pre class="r"><code># ### Evaluation metrics ###
+FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
+FP &lt;- sum(index_est %in% index == FALSE) ## False Positives
+TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
+
+estimated_FDR &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
+estimated_power &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
+
+print(paste(&quot;Estimated FDR for Target 0.2 (Binary case):&quot;, estimated_FDR))</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Binary case): 0.0416666666666667&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.2 (Binary case):&quot;, estimated_power))</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.2 (Binary case): 0.766666666666667&quot;</code></pre>
+<p>The users are encouraged to play with other values of <span
+class="math inline">\(p\)</span>, such as <span class="math inline">\(p
+= 200, 300, 400\)</span>.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.3 (2022-03-10)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] reshape2_1.4.4       dplyr_1.1.2          kosel_0.0.1         
+ [4] zinck_0.0.0.9000     knockoff_0.3.6       glmnet_4.1-7        
+ [7] Matrix_1.5-1         rstan_2.21.8         ggplot2_3.4.2       
+[10] StanHeaders_2.21.0-7 workflowr_1.7.1     
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.10          lattice_0.21-8       prettyunits_1.1.1   
+ [4] getPass_0.2-2        ps_1.7.5             rprojroot_2.0.3     
+ [7] digest_0.6.31        foreach_1.5.2        utf8_1.2.3          
+[10] plyr_1.8.8           R6_2.5.1             stats4_4.1.3        
+[13] evaluate_0.21        httr_1.4.6           pillar_1.9.0        
+[16] rlang_1.1.1          rstudioapi_0.14      whisker_0.4.1       
+[19] callr_3.7.3          jquerylib_0.1.4      ordinalNet_2.12     
+[22] rmarkdown_2.22       splines_4.1.3        stringr_1.5.0       
+[25] loo_2.6.0            munsell_0.5.0        compiler_4.1.3      
+[28] httpuv_1.6.11        xfun_0.39            pkgconfig_2.0.3     
+[31] pkgbuild_1.4.2       shape_1.4.6          htmltools_0.5.5     
+[34] tidyselect_1.2.0     tibble_3.2.1         gridExtra_2.3       
+[37] codetools_0.2-19     matrixStats_0.63.0   randomForest_4.7-1.1
+[40] fansi_1.0.4          crayon_1.5.2         withr_2.5.0         
+[43] later_1.3.1          grid_4.1.3           jsonlite_1.8.5      
+[46] gtable_0.3.3         lifecycle_1.0.3      DBI_1.1.3           
+[49] git2r_0.32.0         magrittr_2.0.3       scales_1.2.1        
+[52] RcppParallel_5.1.7   cli_3.6.1            stringi_1.7.12      
+[55] cachem_1.0.8         fs_1.6.2             promises_1.2.0.1    
+[58] doParallel_1.0.17    bslib_0.5.0          generics_0.1.3      
+[61] vctrs_0.6.5          iterators_1.0.14     tools_4.1.3         
+[64] glue_1.6.2           processx_3.8.1       parallel_4.1.3      
+[67] fastmap_1.1.1        survival_3.5-5       yaml_2.3.7          
+[70] inline_0.3.19        colorspace_2.1-0     knitr_1.43          
+[73] sass_0.4.6          </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

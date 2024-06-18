@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Soham Ghosh" />
+
+<meta name="date" content="2024-06-17" />
+
+<title>Heatmaps</title>
+
+<script src="site_libs/header-attrs-2.22/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">zinck-website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Heatmaps</h1>
+<h4 class="author">Soham Ghosh</h4>
+<h4 class="date">2024-06-17</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-06-18
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>zinck-website/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20240617code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20240617)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20240617code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20240617)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Untracked files:
+    Untracked:  analysis/CRC.Rmd
+    Untracked:  analysis/Heatmaps.Rmd
+    Untracked:  analysis/IBD.Rmd
+    Untracked:  analysis/simulation.Rmd
+
+Unstaged changes:
+    Modified:   analysis/index.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div
+id="comparing-the-heatmaps-for-original-and-knockoff-sample-taxa-matrices"
+class="section level2">
+<h2>Comparing the Heatmaps for Original and Knockoff Sample Taxa
+Matrices</h2>
+<p>We demonstrate the ability of zinck to capture the compositional and
+highly sparse nature of microbiome count data by comparing the heatmaps
+of the original sample taxa matrix <span
+class="math inline">\(\mathbf{X}\)</span> with its high quality knockoff
+copy, <span class="math inline">\(\tilde{\mathbf{X}}\)</span>.</p>
+<p>We consider a toy setting with <span
+class="math inline">\(20\)</span> samples and <span
+class="math inline">\(30\)</span> taxa with the library size between
+<span class="math inline">\(400\)</span> and <span
+class="math inline">\(500\)</span> for each sample, for a high
+zero-inflation level of <span class="math inline">\(0.8\)</span>. We use
+the <code>simulateZINLDA()</code> function from the <code>zinLDA</code>
+package to generate the original sample taxa matrix.</p>
+<pre class="r"><code>library(zinck)
+library(zinLDA)
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(cowplot)
+
+set.seed(1) 
+N.d=zinLDA::rdu(n=20,min=400,max=500) # Drawing random library sizes between 400, 500
+sim_data = zinLDA::simulateZINLDA(D=20,V=30,N=N.d,K=5,Alpha=0.1,Pi=0.8,a=0.5,b=10)
+X_original &lt;- sim_data$sampleTaxaMatrix ## The original sample taxa count matrix
+
+
+model_zinck &lt;- fit.zinck(X_original, num_clusters=5, method=&quot;Gibbs&quot;, seed=1)</code></pre>
+<pre><code>
+  |                                                                                | 0 % elapsed=00s   
+  |=                                                                               | 0 % elapsed=01s, remaining~08m 50s
+  |=                                                                               | 0 % elapsed=01s, remaining~04m 56s
+  |=                                                                               | 1 % elapsed=01s, remaining~03m 40s
+  |=                                                                               | 1 % elapsed=01s, remaining~02m 59s
+  |=                                                                               | 1 % elapsed=02s, remaining~02m 36s
+  |=                                                                               | 1 % elapsed=02s, remaining~02m 22s
+  |==                                                                              | 1 % elapsed=02s, remaining~02m 12s
+  |==                                                                              | 2 % elapsed=02s, remaining~02m 04s
+  |==                                                                              | 2 % elapsed=02s, remaining~01m 58s
+  |==                                                                              | 2 % elapsed=02s, remaining~01m 58s
+  |==                                                                              | 2 % elapsed=03s, remaining~01m 54s
+  |==                                                                              | 2 % elapsed=03s, remaining~01m 50s
+  |===                                                                             | 3 % elapsed=03s, remaining~01m 47s
+  |===                                                                             | 3 % elapsed=03s, remaining~01m 44s
+  |===                                                                             | 3 % elapsed=03s, remaining~01m 41s
+  |===                                                                             | 3 % elapsed=03s, remaining~01m 39s
+  |===                                                                             | 3 % elapsed=03s, remaining~01m 37s
+  |===                                                                             | 4 % elapsed=04s, remaining~01m 35s
+  |====                                                                            | 4 % elapsed=04s, remaining~01m 33s
+  |====                                                                            | 4 % elapsed=04s, remaining~01m 32s
+  |====                                                                            | 4 % elapsed=04s, remaining~01m 30s
+  |====                                                                            | 4 % elapsed=04s, remaining~01m 29s
+  |====                                                                            | 5 % elapsed=04s, remaining~01m 28s
+  |====                                                                            | 5 % elapsed=04s, remaining~01m 26s
+  |====                                                                            | 5 % elapsed=04s, remaining~01m 25s
+  |=====                                                                           | 5 % elapsed=05s, remaining~01m 24s
+  |=====                                                                           | 5 % elapsed=05s, remaining~01m 24s
+  |=====                                                                           | 6 % elapsed=05s, remaining~01m 23s
+  |=====                                                                           | 6 % elapsed=05s, remaining~01m 22s
+  |=====                                                                           | 6 % elapsed=05s, remaining~01m 22s
+  |=====                                                                           | 6 % elapsed=05s, remaining~01m 21s
+  |======                                                                          | 6 % elapsed=05s, remaining~01m 20s
+  |======                                                                          | 7 % elapsed=06s, remaining~01m 20s
+  |======                                                                          | 7 % elapsed=06s, remaining~01m 19s
+  |======                                                                          | 7 % elapsed=06s, remaining~01m 18s
+  |======                                                                          | 7 % elapsed=06s, remaining~01m 18s
+  |======                                                                          | 7 % elapsed=06s, remaining~01m 17s
+  |=======                                                                         | 8 % elapsed=06s, remaining~01m 17s
+  |=======                                                                         | 8 % elapsed=06s, remaining~01m 16s
+  |=======                                                                         | 8 % elapsed=07s, remaining~01m 16s
+  |=======                                                                         | 8 % elapsed=07s, remaining~01m 15s
+  |=======                                                                         | 8 % elapsed=07s, remaining~01m 15s
+  |=======                                                                         | 9 % elapsed=07s, remaining~01m 14s
+  |========                                                                        | 9 % elapsed=07s, remaining~01m 14s
+  |========                                                                        | 9 % elapsed=07s, remaining~01m 14s
+  |========                                                                        | 9 % elapsed=07s, remaining~01m 13s
+  |========                                                                        | 9 % elapsed=08s, remaining~01m 13s
+  |========                                                                        | 10% elapsed=08s, remaining~01m 13s
+  |========                                                                        | 10% elapsed=08s, remaining~01m 12s
+  |========                                                                        | 10% elapsed=08s, remaining~01m 12s
+  |=========                                                                       | 10% elapsed=08s, remaining~01m 12s
+  |=========                                                                       | 10% elapsed=08s, remaining~01m 11s
+  |=========                                                                       | 11% elapsed=08s, remaining~01m 11s
+  |=========                                                                       | 11% elapsed=09s, remaining~01m 11s
+  |=========                                                                       | 11% elapsed=09s, remaining~01m 10s
+  |=========                                                                       | 11% elapsed=09s, remaining~01m 10s
+  |==========                                                                      | 11% elapsed=09s, remaining~01m 09s
+  |==========                                                                      | 12% elapsed=09s, remaining~01m 09s
+  |==========                                                                      | 12% elapsed=09s, remaining~01m 09s
+  |==========                                                                      | 12% elapsed=09s, remaining~01m 08s
+  |==========                                                                      | 12% elapsed=10s, remaining~01m 09s
+  |==========                                                                      | 12% elapsed=10s, remaining~01m 09s
+  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
+  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
+  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
+  |===========                                                                     | 13% elapsed=10s, remaining~01m 08s
+  |===========                                                                     | 13% elapsed=10s, remaining~01m 07s
+  |===========                                                                     | 14% elapsed=11s, remaining~01m 07s
+  |============                                                                    | 14% elapsed=11s, remaining~01m 07s
+  |============                                                                    | 14% elapsed=11s, remaining~01m 07s
+  |============                                                                    | 14% elapsed=11s, remaining~01m 06s
+  |============                                                                    | 14% elapsed=11s, remaining~01m 06s
+  |============                                                                    | 15% elapsed=11s, remaining~01m 06s
+  |============                                                                    | 15% elapsed=11s, remaining~01m 06s
+  |============                                                                    | 15% elapsed=12s, remaining~01m 06s
+  |=============                                                                   | 15% elapsed=12s, remaining~01m 05s
+  |=============                                                                   | 15% elapsed=12s, remaining~01m 05s
+  |=============                                                                   | 16% elapsed=12s, remaining~01m 05s
+  |=============                                                                   | 16% elapsed=12s, remaining~01m 05s
+  |=============                                                                   | 16% elapsed=12s, remaining~01m 04s
+  |=============                                                                   | 16% elapsed=12s, remaining~01m 04s
+  |==============                                                                  | 16% elapsed=13s, remaining~01m 04s
+  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
+  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
+  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
+  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
+  |==============                                                                  | 17% elapsed=13s, remaining~01m 04s
+  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
+  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
+  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
+  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
+  |===============                                                                 | 18% elapsed=14s, remaining~01m 03s
+  |===============                                                                 | 19% elapsed=14s, remaining~01m 02s
+  |================                                                                | 19% elapsed=14s, remaining~01m 02s
+  |================                                                                | 19% elapsed=15s, remaining~01m 02s
+  |================                                                                | 19% elapsed=15s, remaining~01m 02s
+  |================                                                                | 19% elapsed=15s, remaining~01m 02s
+  |================                                                                | 20% elapsed=15s, remaining~01m 02s
+  |================                                                                | 20% elapsed=15s, remaining~01m 02s
+  |================                                                                | 20% elapsed=15s, remaining~01m 01s
+  |=================                                                               | 20% elapsed=16s, remaining~01m 01s
+  |=================                                                               | 20% elapsed=16s, remaining~01m 01s
+  |=================                                                               | 21% elapsed=16s, remaining~01m 01s
+  |=================                                                               | 21% elapsed=16s, remaining~01m 01s
+  |=================                                                               | 21% elapsed=16s, remaining~01m 00s
+  |=================                                                               | 21% elapsed=16s, remaining~01m 00s
+  |==================                                                              | 21% elapsed=16s, remaining~01m 00s
+  |==================                                                              | 22% elapsed=17s, remaining~01m 00s
+  |==================                                                              | 22% elapsed=17s, remaining~01m 00s
+  |==================                                                              | 22% elapsed=17s, remaining~60s
+  |==================                                                              | 22% elapsed=17s, remaining~60s
+  |==================                                                              | 22% elapsed=17s, remaining~60s
+  |===================                                                             | 23% elapsed=17s, remaining~59s
+  |===================                                                             | 23% elapsed=17s, remaining~59s
+  |===================                                                             | 23% elapsed=18s, remaining~59s
+  |===================                                                             | 23% elapsed=18s, remaining~59s
+  |===================                                                             | 23% elapsed=18s, remaining~59s
+  |===================                                                             | 24% elapsed=18s, remaining~58s
+  |====================                                                            | 24% elapsed=18s, remaining~58s
+  |====================                                                            | 24% elapsed=18s, remaining~58s
+  |====================                                                            | 24% elapsed=18s, remaining~58s
+  |====================                                                            | 24% elapsed=19s, remaining~58s
+  |====================                                                            | 25% elapsed=19s, remaining~58s
+  |====================                                                            | 25% elapsed=19s, remaining~57s
+  |====================                                                            | 25% elapsed=19s, remaining~57s
+  |=====================                                                           | 25% elapsed=19s, remaining~57s
+  |=====================                                                           | 25% elapsed=19s, remaining~57s
+  |=====================                                                           | 26% elapsed=20s, remaining~57s
+  |=====================                                                           | 26% elapsed=20s, remaining~57s
+  |=====================                                                           | 26% elapsed=20s, remaining~56s
+  |=====================                                                           | 26% elapsed=20s, remaining~56s
+  |======================                                                          | 26% elapsed=20s, remaining~56s
+  |======================                                                          | 27% elapsed=20s, remaining~56s
+  |======================                                                          | 27% elapsed=20s, remaining~56s
+  |======================                                                          | 27% elapsed=21s, remaining~56s
+  |======================                                                          | 27% elapsed=21s, remaining~55s
+  |======================                                                          | 27% elapsed=21s, remaining~55s
+  |=======================                                                         | 28% elapsed=21s, remaining~55s
+  |=======================                                                         | 28% elapsed=21s, remaining~55s
+  |=======================                                                         | 28% elapsed=21s, remaining~55s
+  |=======================                                                         | 28% elapsed=21s, remaining~54s
+  |=======================                                                         | 28% elapsed=22s, remaining~54s
+  |=======================                                                         | 29% elapsed=22s, remaining~54s
+  |========================                                                        | 29% elapsed=22s, remaining~54s
+  |========================                                                        | 29% elapsed=22s, remaining~54s
+  |========================                                                        | 29% elapsed=22s, remaining~54s
+  |========================                                                        | 29% elapsed=22s, remaining~53s
+  |========================                                                        | 30% elapsed=22s, remaining~53s
+  |========================                                                        | 30% elapsed=23s, remaining~53s
+  |========================                                                        | 30% elapsed=23s, remaining~53s
+  |=========================                                                       | 30% elapsed=23s, remaining~53s
+  |=========================                                                       | 30% elapsed=23s, remaining~53s
+  |=========================                                                       | 31% elapsed=23s, remaining~52s
+  |=========================                                                       | 31% elapsed=23s, remaining~52s
+  |=========================                                                       | 31% elapsed=23s, remaining~52s
+  |=========================                                                       | 31% elapsed=24s, remaining~52s
+  |==========================                                                      | 31% elapsed=24s, remaining~52s
+  |==========================                                                      | 32% elapsed=24s, remaining~52s
+  |==========================                                                      | 32% elapsed=24s, remaining~52s
+  |==========================                                                      | 32% elapsed=24s, remaining~51s
+  |==========================                                                      | 32% elapsed=24s, remaining~51s
+  |==========================                                                      | 32% elapsed=24s, remaining~51s
+  |===========================                                                     | 33% elapsed=25s, remaining~51s
+  |===========================                                                     | 33% elapsed=25s, remaining~51s
+  |===========================                                                     | 33% elapsed=25s, remaining~50s
+  |===========================                                                     | 33% elapsed=25s, remaining~50s
+  |===========================                                                     | 33% elapsed=25s, remaining~50s
+  |===========================                                                     | 34% elapsed=25s, remaining~50s
+  |============================                                                    | 34% elapsed=25s, remaining~50s
+  |============================                                                    | 34% elapsed=26s, remaining~50s
+  |============================                                                    | 34% elapsed=26s, remaining~49s
+  |============================                                                    | 34% elapsed=26s, remaining~49s
+  |============================                                                    | 35% elapsed=26s, remaining~49s
+  |============================                                                    | 35% elapsed=26s, remaining~49s
+  |============================                                                    | 35% elapsed=26s, remaining~49s
+  |=============================                                                   | 35% elapsed=26s, remaining~48s
+  |=============================                                                   | 35% elapsed=26s, remaining~48s
+  |=============================                                                   | 36% elapsed=27s, remaining~48s
+  |=============================                                                   | 36% elapsed=27s, remaining~48s
+  |=============================                                                   | 36% elapsed=27s, remaining~48s
+  |=============================                                                   | 36% elapsed=27s, remaining~48s
+  |==============================                                                  | 36% elapsed=27s, remaining~47s
+  |==============================                                                  | 37% elapsed=27s, remaining~47s
+  |==============================                                                  | 37% elapsed=27s, remaining~47s
+  |==============================                                                  | 37% elapsed=28s, remaining~47s
+  |==============================                                                  | 37% elapsed=28s, remaining~47s
+  |==============================                                                  | 37% elapsed=28s, remaining~47s
+  |===============================                                                 | 38% elapsed=28s, remaining~46s
+  |===============================                                                 | 38% elapsed=28s, remaining~46s
+  |===============================                                                 | 38% elapsed=28s, remaining~46s
+  |===============================                                                 | 38% elapsed=28s, remaining~46s
+  |===============================                                                 | 38% elapsed=29s, remaining~46s
+  |===============================                                                 | 39% elapsed=29s, remaining~46s
+  |================================                                                | 39% elapsed=29s, remaining~45s
+  |================================                                                | 39% elapsed=29s, remaining~45s
+  |================================                                                | 39% elapsed=29s, remaining~45s
+  |================================                                                | 39% elapsed=29s, remaining~45s
+  |================================                                                | 40% elapsed=29s, remaining~45s
+  |================================                                                | 40% elapsed=30s, remaining~45s
+  |================================                                                | 40% elapsed=30s, remaining~45s
+  |=================================                                               | 40% elapsed=30s, remaining~44s
+  |=================================                                               | 40% elapsed=30s, remaining~44s
+  |=================================                                               | 41% elapsed=30s, remaining~44s
+  |=================================                                               | 41% elapsed=30s, remaining~44s
+  |=================================                                               | 41% elapsed=31s, remaining~44s
+  |=================================                                               | 41% elapsed=31s, remaining~44s
+  |==================================                                              | 41% elapsed=31s, remaining~44s
+  |==================================                                              | 42% elapsed=31s, remaining~43s
+  |==================================                                              | 42% elapsed=31s, remaining~43s
+  |==================================                                              | 42% elapsed=31s, remaining~43s
+  |==================================                                              | 42% elapsed=31s, remaining~43s
+  |==================================                                              | 42% elapsed=32s, remaining~43s
+  |===================================                                             | 43% elapsed=32s, remaining~43s
+  |===================================                                             | 43% elapsed=32s, remaining~43s
+  |===================================                                             | 43% elapsed=32s, remaining~42s
+  |===================================                                             | 43% elapsed=32s, remaining~42s
+  |===================================                                             | 43% elapsed=32s, remaining~42s
+  |===================================                                             | 44% elapsed=32s, remaining~42s
+  |====================================                                            | 44% elapsed=33s, remaining~42s
+  |====================================                                            | 44% elapsed=33s, remaining~42s
+  |====================================                                            | 44% elapsed=33s, remaining~41s
+  |====================================                                            | 44% elapsed=33s, remaining~41s
+  |====================================                                            | 45% elapsed=33s, remaining~41s
+  |====================================                                            | 45% elapsed=33s, remaining~41s
+  |====================================                                            | 45% elapsed=33s, remaining~41s
+  |=====================================                                           | 45% elapsed=34s, remaining~41s
+  |=====================================                                           | 45% elapsed=34s, remaining~41s
+  |=====================================                                           | 46% elapsed=34s, remaining~40s
+  |=====================================                                           | 46% elapsed=34s, remaining~40s
+  |=====================================                                           | 46% elapsed=34s, remaining~40s
+  |=====================================                                           | 46% elapsed=34s, remaining~40s
+  |======================================                                          | 46% elapsed=34s, remaining~40s
+  |======================================                                          | 47% elapsed=35s, remaining~40s
+  |======================================                                          | 47% elapsed=35s, remaining~39s
+  |======================================                                          | 47% elapsed=35s, remaining~39s
+  |======================================                                          | 47% elapsed=35s, remaining~39s
+  |======================================                                          | 47% elapsed=35s, remaining~39s
+  |=======================================                                         | 48% elapsed=35s, remaining~39s
+  |=======================================                                         | 48% elapsed=35s, remaining~39s
+  |=======================================                                         | 48% elapsed=36s, remaining~38s
+  |=======================================                                         | 48% elapsed=36s, remaining~38s
+  |=======================================                                         | 48% elapsed=36s, remaining~38s
+  |=======================================                                         | 49% elapsed=36s, remaining~38s
+  |========================================                                        | 49% elapsed=36s, remaining~38s
+  |========================================                                        | 49% elapsed=36s, remaining~38s
+  |========================================                                        | 49% elapsed=36s, remaining~38s
+  |========================================                                        | 49% elapsed=37s, remaining~37s
+  |========================================                                        | 50% elapsed=37s, remaining~37s
+  |========================================                                        | 50% elapsed=37s, remaining~37s
+  |========================================                                        | 50% elapsed=37s, remaining~37s
+  |=========================================                                       | 50% elapsed=37s, remaining~37s
+  |=========================================                                       | 50% elapsed=37s, remaining~37s
+  |=========================================                                       | 51% elapsed=37s, remaining~37s
+  |=========================================                                       | 51% elapsed=38s, remaining~36s
+  |=========================================                                       | 51% elapsed=38s, remaining~36s
+  |=========================================                                       | 51% elapsed=38s, remaining~36s
+  |==========================================                                      | 51% elapsed=38s, remaining~36s
+  |==========================================                                      | 52% elapsed=38s, remaining~36s
+  |==========================================                                      | 52% elapsed=38s, remaining~36s
+  |==========================================                                      | 52% elapsed=38s, remaining~36s
+  |==========================================                                      | 52% elapsed=39s, remaining~35s
+  |==========================================                                      | 52% elapsed=39s, remaining~35s
+  |===========================================                                     | 53% elapsed=39s, remaining~35s
+  |===========================================                                     | 53% elapsed=39s, remaining~35s
+  |===========================================                                     | 53% elapsed=39s, remaining~35s
+  |===========================================                                     | 53% elapsed=39s, remaining~35s
+  |===========================================                                     | 53% elapsed=40s, remaining~35s
+  |===========================================                                     | 54% elapsed=40s, remaining~34s
+  |============================================                                    | 54% elapsed=40s, remaining~34s
+  |============================================                                    | 54% elapsed=40s, remaining~34s
+  |============================================                                    | 54% elapsed=40s, remaining~34s
+  |============================================                                    | 54% elapsed=40s, remaining~34s
+  |============================================                                    | 55% elapsed=40s, remaining~34s
+  |============================================                                    | 55% elapsed=41s, remaining~33s
+  |============================================                                    | 55% elapsed=41s, remaining~33s
+  |=============================================                                   | 55% elapsed=41s, remaining~33s
+  |=============================================                                   | 55% elapsed=41s, remaining~33s
+  |=============================================                                   | 56% elapsed=41s, remaining~33s
+  |=============================================                                   | 56% elapsed=41s, remaining~33s
+  |=============================================                                   | 56% elapsed=41s, remaining~33s
+  |=============================================                                   | 56% elapsed=42s, remaining~32s
+  |==============================================                                  | 56% elapsed=42s, remaining~32s
+  |==============================================                                  | 57% elapsed=42s, remaining~32s
+  |==============================================                                  | 57% elapsed=42s, remaining~32s
+  |==============================================                                  | 57% elapsed=42s, remaining~32s
+  |==============================================                                  | 57% elapsed=42s, remaining~32s
+  |==============================================                                  | 57% elapsed=42s, remaining~31s
+  |===============================================                                 | 58% elapsed=43s, remaining~31s
+  |===============================================                                 | 58% elapsed=43s, remaining~31s
+  |===============================================                                 | 58% elapsed=43s, remaining~31s
+  |===============================================                                 | 58% elapsed=43s, remaining~31s
+  |===============================================                                 | 58% elapsed=43s, remaining~31s
+  |===============================================                                 | 59% elapsed=43s, remaining~31s
+  |================================================                                | 59% elapsed=44s, remaining~31s
+  |================================================                                | 59% elapsed=44s, remaining~30s
+  |================================================                                | 59% elapsed=44s, remaining~30s
+  |================================================                                | 59% elapsed=44s, remaining~30s
+  |================================================                                | 60% elapsed=44s, remaining~30s
+  |================================================                                | 60% elapsed=44s, remaining~30s
+  |================================================                                | 60% elapsed=44s, remaining~30s
+  |=================================================                               | 60% elapsed=45s, remaining~29s
+  |=================================================                               | 60% elapsed=45s, remaining~29s
+  |=================================================                               | 61% elapsed=45s, remaining~29s
+  |=================================================                               | 61% elapsed=45s, remaining~29s
+  |=================================================                               | 61% elapsed=45s, remaining~29s
+  |=================================================                               | 61% elapsed=45s, remaining~29s
+  |==================================================                              | 61% elapsed=45s, remaining~29s
+  |==================================================                              | 62% elapsed=46s, remaining~28s
+  |==================================================                              | 62% elapsed=46s, remaining~28s
+  |==================================================                              | 62% elapsed=46s, remaining~28s
+  |==================================================                              | 62% elapsed=46s, remaining~28s
+  |==================================================                              | 62% elapsed=46s, remaining~28s
+  |===================================================                             | 63% elapsed=46s, remaining~28s
+  |===================================================                             | 63% elapsed=47s, remaining~28s
+  |===================================================                             | 63% elapsed=47s, remaining~27s
+  |===================================================                             | 63% elapsed=47s, remaining~27s
+  |===================================================                             | 63% elapsed=47s, remaining~27s
+  |===================================================                             | 64% elapsed=47s, remaining~27s
+  |====================================================                            | 64% elapsed=47s, remaining~27s
+  |====================================================                            | 64% elapsed=47s, remaining~27s
+  |====================================================                            | 64% elapsed=48s, remaining~27s
+  |====================================================                            | 64% elapsed=48s, remaining~26s
+  |====================================================                            | 65% elapsed=48s, remaining~26s
+  |====================================================                            | 65% elapsed=48s, remaining~26s
+  |====================================================                            | 65% elapsed=48s, remaining~26s
+  |=====================================================                           | 65% elapsed=48s, remaining~26s
+  |=====================================================                           | 65% elapsed=48s, remaining~26s
+  |=====================================================                           | 66% elapsed=49s, remaining~25s
+  |=====================================================                           | 66% elapsed=49s, remaining~25s
+  |=====================================================                           | 66% elapsed=49s, remaining~25s
+  |=====================================================                           | 66% elapsed=49s, remaining~25s
+  |======================================================                          | 66% elapsed=49s, remaining~25s
+  |======================================================                          | 67% elapsed=49s, remaining~25s
+  |======================================================                          | 67% elapsed=49s, remaining~25s
+  |======================================================                          | 67% elapsed=49s, remaining~24s
+  |======================================================                          | 67% elapsed=50s, remaining~24s
+  |======================================================                          | 67% elapsed=50s, remaining~24s
+  |=======================================================                         | 68% elapsed=50s, remaining~24s
+  |=======================================================                         | 68% elapsed=50s, remaining~24s
+  |=======================================================                         | 68% elapsed=50s, remaining~24s
+  |=======================================================                         | 68% elapsed=50s, remaining~24s
+  |=======================================================                         | 68% elapsed=51s, remaining~23s
+  |=======================================================                         | 69% elapsed=51s, remaining~23s
+  |========================================================                        | 69% elapsed=51s, remaining~23s
+  |========================================================                        | 69% elapsed=51s, remaining~23s
+  |========================================================                        | 69% elapsed=51s, remaining~23s
+  |========================================================                        | 69% elapsed=51s, remaining~23s
+  |========================================================                        | 70% elapsed=51s, remaining~22s
+  |========================================================                        | 70% elapsed=52s, remaining~22s
+  |========================================================                        | 70% elapsed=52s, remaining~22s
+  |=========================================================                       | 70% elapsed=52s, remaining~22s
+  |=========================================================                       | 70% elapsed=52s, remaining~22s
+  |=========================================================                       | 71% elapsed=52s, remaining~22s
+  |=========================================================                       | 71% elapsed=52s, remaining~22s
+  |=========================================================                       | 71% elapsed=52s, remaining~21s
+  |=========================================================                       | 71% elapsed=53s, remaining~21s
+  |==========================================================                      | 71% elapsed=53s, remaining~21s
+  |==========================================================                      | 72% elapsed=53s, remaining~21s
+  |==========================================================                      | 72% elapsed=53s, remaining~21s
+  |==========================================================                      | 72% elapsed=53s, remaining~21s
+  |==========================================================                      | 72% elapsed=53s, remaining~21s
+  |==========================================================                      | 72% elapsed=53s, remaining~20s
+  |===========================================================                     | 73% elapsed=54s, remaining~20s
+  |===========================================================                     | 73% elapsed=54s, remaining~20s
+  |===========================================================                     | 73% elapsed=54s, remaining~20s
+  |===========================================================                     | 73% elapsed=54s, remaining~20s
+  |===========================================================                     | 73% elapsed=54s, remaining~20s
+  |===========================================================                     | 74% elapsed=54s, remaining~20s
+  |============================================================                    | 74% elapsed=55s, remaining~19s
+  |============================================================                    | 74% elapsed=55s, remaining~19s
+  |============================================================                    | 74% elapsed=55s, remaining~19s
+  |============================================================                    | 74% elapsed=55s, remaining~19s
+  |============================================================                    | 75% elapsed=55s, remaining~19s
+  |============================================================                    | 75% elapsed=55s, remaining~19s
+  |============================================================                    | 75% elapsed=55s, remaining~18s
+  |=============================================================                   | 75% elapsed=56s, remaining~18s
+  |=============================================================                   | 75% elapsed=56s, remaining~18s
+  |=============================================================                   | 76% elapsed=56s, remaining~18s
+  |=============================================================                   | 76% elapsed=56s, remaining~18s
+  |=============================================================                   | 76% elapsed=56s, remaining~18s
+  |=============================================================                   | 76% elapsed=56s, remaining~18s
+  |==============================================================                  | 76% elapsed=56s, remaining~17s
+  |==============================================================                  | 77% elapsed=57s, remaining~17s
+  |==============================================================                  | 77% elapsed=57s, remaining~17s
+  |==============================================================                  | 77% elapsed=57s, remaining~17s
+  |==============================================================                  | 77% elapsed=57s, remaining~17s
+  |==============================================================                  | 77% elapsed=57s, remaining~17s
+  |===============================================================                 | 78% elapsed=57s, remaining~17s
+  |===============================================================                 | 78% elapsed=58s, remaining~16s
+  |===============================================================                 | 78% elapsed=58s, remaining~16s
+  |===============================================================                 | 78% elapsed=58s, remaining~16s
+  |===============================================================                 | 78% elapsed=58s, remaining~16s
+  |===============================================================                 | 79% elapsed=58s, remaining~16s
+  |================================================================                | 79% elapsed=58s, remaining~16s
+  |================================================================                | 79% elapsed=58s, remaining~16s
+  |================================================================                | 79% elapsed=59s, remaining~15s
+  |================================================================                | 79% elapsed=59s, remaining~15s
+  |================================================================                | 80% elapsed=59s, remaining~15s
+  |================================================================                | 80% elapsed=59s, remaining~15s
+  |================================================================                | 80% elapsed=59s, remaining~15s
+  |=================================================================               | 80% elapsed=59s, remaining~15s
+  |=================================================================               | 80% elapsed=59s, remaining~14s
+  |=================================================================               | 81% elapsed=60s, remaining~14s
+  |=================================================================               | 81% elapsed=60s, remaining~14s
+  |=================================================================               | 81% elapsed=60s, remaining~14s
+  |=================================================================               | 81% elapsed=01m 00s, remaining~14s
+  |==================================================================              | 81% elapsed=01m 00s, remaining~14s
+  |==================================================================              | 82% elapsed=01m 00s, remaining~14s
+  |==================================================================              | 82% elapsed=01m 00s, remaining~13s
+  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
+  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
+  |==================================================================              | 82% elapsed=01m 01s, remaining~13s
+  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
+  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
+  |===================================================================             | 83% elapsed=01m 01s, remaining~13s
+  |===================================================================             | 83% elapsed=01m 02s, remaining~12s
+  |===================================================================             | 83% elapsed=01m 02s, remaining~12s
+  |===================================================================             | 84% elapsed=01m 02s, remaining~12s
+  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
+  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
+  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
+  |====================================================================            | 84% elapsed=01m 02s, remaining~12s
+  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
+  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
+  |====================================================================            | 85% elapsed=01m 03s, remaining~11s
+  |=====================================================================           | 85% elapsed=01m 03s, remaining~11s
+  |=====================================================================           | 85% elapsed=01m 03s, remaining~11s
+  |=====================================================================           | 86% elapsed=01m 03s, remaining~11s
+  |=====================================================================           | 86% elapsed=01m 04s, remaining~11s
+  |=====================================================================           | 86% elapsed=01m 04s, remaining~10s
+  |=====================================================================           | 86% elapsed=01m 04s, remaining~10s
+  |======================================================================          | 86% elapsed=01m 04s, remaining~10s
+  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
+  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
+  |======================================================================          | 87% elapsed=01m 04s, remaining~10s
+  |======================================================================          | 87% elapsed=01m 05s, remaining~09s
+  |======================================================================          | 87% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 88% elapsed=01m 05s, remaining~09s
+  |=======================================================================         | 89% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 89% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 90% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 90% elapsed=01m 06s, remaining~08s
+  |========================================================================        | 90% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 90% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 90% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
+  |=========================================================================       | 91% elapsed=01m 07s, remaining~07s
+  |==========================================================================      | 91% elapsed=01m 08s, remaining~06s
+  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
+  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
+  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
+  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
+  |==========================================================================      | 92% elapsed=01m 08s, remaining~06s
+  |===========================================================================     | 93% elapsed=01m 08s, remaining~05s
+  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
+  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
+  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
+  |===========================================================================     | 93% elapsed=01m 09s, remaining~05s
+  |===========================================================================     | 94% elapsed=01m 09s, remaining~05s
+  |============================================================================    | 94% elapsed=01m 09s, remaining~05s
+  |============================================================================    | 94% elapsed=01m 09s, remaining~04s
+  |============================================================================    | 94% elapsed=01m 10s, remaining~04s
+  |============================================================================    | 94% elapsed=01m 10s, remaining~04s
+  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
+  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
+  |============================================================================    | 95% elapsed=01m 10s, remaining~04s
+  |=============================================================================   | 95% elapsed=01m 10s, remaining~04s
+  |=============================================================================   | 95% elapsed=01m 11s, remaining~03s
+  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
+  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
+  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
+  |=============================================================================   | 96% elapsed=01m 11s, remaining~03s
+  |==============================================================================  | 96% elapsed=01m 11s, remaining~03s
+  |==============================================================================  | 97% elapsed=01m 11s, remaining~03s
+  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
+  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
+  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
+  |==============================================================================  | 97% elapsed=01m 12s, remaining~02s
+  |=============================================================================== | 98% elapsed=01m 12s, remaining~02s
+  |=============================================================================== | 98% elapsed=01m 12s, remaining~02s
+  |=============================================================================== | 98% elapsed=01m 12s, remaining~01s
+  |=============================================================================== | 98% elapsed=01m 13s, remaining~01s
+  |=============================================================================== | 98% elapsed=01m 13s, remaining~01s
+  |=============================================================================== | 99% elapsed=01m 13s, remaining~01s
+  |================================================================================| 99% elapsed=01m 13s, remaining~01s
+  |================================================================================| 99% elapsed=01m 13s, remaining~01s
+  |================================================================================| 99% elapsed=01m 13s, remaining~01s
+  |================================================================================| 99% elapsed=01m 13s, remaining~00s
+  |================================================================================| 100% elapsed=01m 14s, remaining~00s
+  |================================================================================| 100% elapsed=01m 14s, remaining~00s
+  |================================================================================| 100% elapsed=01m 14s, remaining~00s</code></pre>
+<pre class="r"><code>Theta &lt;- model_zinck$theta
+Beta &lt;- model_zinck$beta
+
+X_zinck &lt;- generateKnockoff(X_original,Theta,Beta,seed=1)
+rownames(X_zinck) &lt;- rownames(X_original)
+
+heat1 &lt;- draw_heatmap(X_original, &quot;Original&quot;)
+heat2 &lt;- draw_heatmap(X_zinck, &quot;Knockoff&quot;)
+plot_grid(heat1, heat2, ncol = 2, align=&quot;v&quot;)</code></pre>
+<p><img src="figure/Heatmaps.Rmd/heatmaps-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>It is evident from the above heatmaps that the knockoff copy is
+almost indistinguishable from the original matrix! This underscores the
+fact that the knockoff copy preserves the underlying structure of the
+observed sample taxa count matrix.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.3 (2022-03-10)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] cowplot_1.1.1     gridExtra_2.3     reshape2_1.4.4    ggplot2_3.4.2    
+[5] zinLDA_0.0.0.9000 zinck_0.0.0.9000  workflowr_1.7.1  
+
+loaded via a namespace (and not attached):
+ [1] mcmc_0.9-7           matrixStats_0.63.0   fs_1.6.2            
+ [4] httr_1.4.6           rprojroot_2.0.3      rstan_2.21.8        
+ [7] tools_4.1.3          bslib_0.5.0          utf8_1.2.3          
+[10] R6_2.5.1             DBI_1.1.3            colorspace_2.1-0    
+[13] withr_2.5.0          tidyselect_1.2.0     prettyunits_1.1.1   
+[16] processx_3.8.1       compiler_4.1.3       git2r_0.32.0        
+[19] glmnet_4.1-7         cli_3.6.1            quantreg_5.95       
+[22] SparseM_1.81         xml2_1.3.4           NLP_0.2-1           
+[25] slam_0.1-50          sass_0.4.6           scales_1.2.1        
+[28] tm_0.7-8             randomForest_4.7-1.1 callr_3.7.3         
+[31] pbapply_1.7-2        stringr_1.5.0        digest_0.6.31       
+[34] StanHeaders_2.21.0-7 rmarkdown_2.22       MCMCpack_1.6-3      
+[37] pkgconfig_2.0.3      htmltools_0.5.5      highr_0.10          
+[40] fastmap_1.1.1        rlang_1.1.1          rstudioapi_0.14     
+[43] shape_1.4.6          jquerylib_0.1.4      generics_0.1.3      
+[46] farver_2.1.1         jsonlite_1.8.5       dplyr_1.1.2         
+[49] inline_0.3.19        magrittr_2.0.3       modeltools_0.2-23   
+[52] loo_2.6.0            Matrix_1.5-1         Rcpp_1.0.10         
+[55] munsell_0.5.0        fansi_1.0.4          lifecycle_1.0.3     
+[58] stringi_1.7.12       whisker_0.4.1        yaml_2.3.7          
+[61] MASS_7.3-60          pkgbuild_1.4.2       plyr_1.8.8          
+[64] grid_4.1.3           parallel_4.1.3       promises_1.2.0.1    
+[67] crayon_1.5.2         lattice_0.21-8       splines_4.1.3       
+[70] knockoff_0.3.6       knitr_1.43           ps_1.7.5            
+[73] pillar_1.9.0         topicmodels_0.2-14   codetools_0.2-19    
+[76] stats4_4.1.3         glue_1.6.2           evaluate_0.21       
+[79] getPass_0.2-2        RcppParallel_5.1.7   vctrs_0.6.5         
+[82] httpuv_1.6.11        foreach_1.5.2        MatrixModels_0.5-1  
+[85] gtable_0.3.3         cachem_1.0.8         xfun_0.39           
+[88] coda_0.19-4          later_1.3.1          survival_3.5-5      
+[91] tibble_3.2.1         iterators_1.0.14    </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
