@@ -100,7 +100,7 @@ generate_data <- function(p,seed){
 
 Now, let's look at the case when $p = 100$. On extracting the sample taxa count matrix $X_1$, we train the zinck model using ADVI. Plugging in the learnt parameters into the generative framework of zinck, we generate the knockoff matrix $\tilde{X}_1$.
 
-```{r zinck-fit}
+```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 X1 <- generate_data(p=100, seed=2)$X1
 fit1 <- zinck::fit.zinck(X1,num_clusters = 6, method="ADVI", seed = 1)
 theta <- fit1$theta
