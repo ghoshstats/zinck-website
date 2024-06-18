@@ -9,7 +9,7 @@ editor_options:
 
 ## CRC Data Analysis 
 
-We applied Zinck to meta-analyze five metagenomics studies of CRC. The five studies correspond to five different countries for the CRC data, which are named ``AT" (Australia), ``US" (USA), ``CN" (China), ``DE" (Germany), and ``FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on the most abundant $300$ species.
+We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on the most abundant $300$ species.
 
 ```{r CRC-data}
 ##################### CRC data species level ##########################
@@ -34,7 +34,7 @@ Y <- lookup[Y]    ## Converting into 0/1 data
 
 We train the zinck model on $X$ using ADVI with an optimal number of clusters (19). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
 
-```{r zinck-fit}
+```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 dlt <- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
 
 for(t in (1:ncol(X)))
@@ -144,7 +144,7 @@ We move on to fit a tuned Random Forest model relating the augmented set of cova
 X_aug <- cbind(X,X_tilde_CRC) ## Creating the augmented matrix
 
 ######### Tuning the Random Forest model ####################
-bestmtry <- tuneRF(X_aug,as.factor(Y),stepFactor = 1.5,improve=1e-5,ntree=1000) ## Getting the best mtry hyperparameter
+bestmtry <- tuneRF(X_aug,as.factor(Y),stepFactor = 1.5,improve=1e-5,ntree=1000, plot=FALSE) ## Getting the best mtry hyperparameter
 m <- bestmtry[as.numeric(which.min(bestmtry[,"OOBError"])),1]
 df_X <- as.data.frame(X_aug)
 colnames(df_X) <- NULL
