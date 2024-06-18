@@ -67,7 +67,7 @@ Y <- c(risk_Y,prism_Y,hmp_Y,mi_Y,pouchitis_Y)
 
 We train the zinck model on $X$ with the optimal number of clusters (27), and use the posterior estimates of the latent parameters to generate the knockoff matrix.
 
-```{r zinck-IBD}
+```{r zinck-IBD, message=FALSE, warning=FALSE, results='hide'}
 zinck_code <- "data {
   int<lower=1> K; // num topics
   int<lower=1> V; // num words
@@ -176,13 +176,15 @@ X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the kncoko
 
 Fitting the Random Forest model associating the augmented set of covariates with the outcome of interest, we extract the Feature Importance scores. 
 
-```{r imp-scores}
+```{r imp-scores, fig.width=10, fig.height=8}
 set.seed(5)
 W <- stat.random_forest(X,X_tilde,Y)
 T <- knockoff.threshold(W,fdr=0.1,offset = 0) ## This is the knockoff filter threshold
 print(which(W>=T))
 
-names <- colnames(X[,which(W>=T)]) ## Extracting the names of the important genera
+#names <- colnames(X[,which(W>=T)]) ## Extracting the names of the important genera
+
+names <- c("Ruminococcaceae (Family)", "Parabacteroides", "Rikenellaceae (Family)", "Oscillospira", "Lachnospira","Coprococcus","Bilophila","Anaerostipes","Lachnobacterium","Holdemania")
 data.genus <- data.frame(
   impscores = sort(W[which(W>=T)], decreasing=FALSE) , 
   name = factor(names, levels = names),
