@@ -420,10 +420,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -516,15 +516,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree3a96692706c6f4b4292bbefcbdaf0dbc4b11c109targetblank3a96692a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+<a href="https://github.com/ghoshstats/zinck-website/tree/3a96692706c6f4b4292bbefcbdaf0dbc4b11c109" target="_blank">3a96692</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree3a96692706c6f4b4292bbefcbdaf0dbc4b11c109targetblank3a96692a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -534,7 +534,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+<a href="https://github.com/ghoshstats/zinck-website/tree/3a96692706c6f4b4292bbefcbdaf0dbc4b11c109" target="_blank">3a96692</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -548,14 +548,11 @@ depends on. Below is the status of the Git repository when the results
 were generated:
 </p>
 <pre><code>
-Untracked files:
-    Untracked:  analysis/CRC.Rmd
-    Untracked:  analysis/Heatmaps.Rmd
-    Untracked:  analysis/IBD.Rmd
-    Untracked:  analysis/simulation.Rmd
+Ignored files:
+    Ignored:    .DS_Store
 
 Unstaged changes:
-    Modified:   analysis/index.Rmd
+    Modified:   analysis/IBD.Rmd
 
 </code></pre>
 <p>
@@ -570,10 +567,73 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/IBD.Rmd</code>) and HTML
+(<code>docs/IBD.html</code>) files. If you’ve configured a remote Git
+repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
+in the table below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ghoshstats/zinck-website/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/IBD.html" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Build and publish the website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/a6c38f81ddf35b0d78bcc099268c13bc646997c5/analysis/IBD.Rmd" target="_blank">a6c38f8</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Add home, experiment, and simulation pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -717,30 +777,9 @@ model {
 }
 &quot;
 
-stan.model = stan_model(model_code = zinck_code)</code></pre>
-<pre><code>Trying to compile a simple C file</code></pre>
-<pre><code>Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/BH/include&quot; -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/src/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppParallel/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-In file included from &lt;built-in&gt;:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:88:
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
-namespace Eigen {
-^
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
-namespace Eigen {
-               ^
-               ;
-In file included from &lt;built-in&gt;:1:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
-/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
-#include &lt;complex&gt;
-         ^~~~~~~~~
-3 errors generated.
-make: *** [foo.o] Error 1</code></pre>
-<pre class="r"><code>X &lt;- X[,order(decreasing=T,colSums(X,na.rm=T),apply(X,2L,paste,collapse=&#39;&#39;))] ## ordering the columns w/ decreasing abundance
+stan.model = stan_model(model_code = zinck_code)
+
+X &lt;- X[,order(decreasing=T,colSums(X,na.rm=T),apply(X,2L,paste,collapse=&#39;&#39;))] ## ordering the columns w/ decreasing abundance
 
 dlt &lt;- rep(0,ncol(X)) ## Initializing the deltas with the sparsity of each column
 
@@ -768,71 +807,9 @@ zinLDA_stan_data &lt;- list(
 
 ## Fitting the zinck model ##
 set.seed(1)
-fitIBD &lt;- vb(stan.model, data=zinLDA_stan_data, algorithm=&quot;meanfield&quot;, importance_resampling=TRUE, iter=10000,tol_rel_obj=0.01,elbo_samples=500)</code></pre>
-<pre><code>Chain 1: ------------------------------------------------------------
-Chain 1: EXPERIMENTAL ALGORITHM:
-Chain 1:   This procedure has not been thoroughly tested and may be unstable
-Chain 1:   or buggy. The interface is subject to change.
-Chain 1: ------------------------------------------------------------
-Chain 1: 
-Chain 1: 
-Chain 1: 
-Chain 1: Gradient evaluation took 0.7248 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 7248 seconds.
-Chain 1: Adjust your expectations accordingly!
-Chain 1: 
-Chain 1: 
-Chain 1: Begin eta adaptation.
-Chain 1: Iteration:   1 / 250 [  0%]  (Adaptation)
-Chain 1: Iteration:  50 / 250 [ 20%]  (Adaptation)
-Chain 1: Iteration: 100 / 250 [ 40%]  (Adaptation)
-Chain 1: Iteration: 150 / 250 [ 60%]  (Adaptation)
-Chain 1: Iteration: 200 / 250 [ 80%]  (Adaptation)
-Chain 1: Iteration: 250 / 250 [100%]  (Adaptation)
-Chain 1: Success! Found best value [eta = 0.1].
-Chain 1: 
-Chain 1: Begin stochastic gradient ascent.
-Chain 1:   iter             ELBO   delta_ELBO_mean   delta_ELBO_med   notes 
-Chain 1:    100   -126700447.982             1.000            1.000
-Chain 1:    200    -77685031.927             0.815            1.000
-Chain 1:    300    -59307492.121             0.647            0.631
-Chain 1:    400    -50860990.107             0.527            0.631
-Chain 1:    500    -45537078.584             0.445            0.310
-Chain 1:    600    -41685839.741             0.386            0.310
-Chain 1:    700    -38580134.819             0.342            0.166
-Chain 1:    800    -36053383.596             0.308            0.166
-Chain 1:    900    -33979738.726             0.281            0.117
-Chain 1:   1000    -32254605.026             0.258            0.117
-Chain 1:   1100    -30792620.765             0.163            0.092
-Chain 1:   1200    -29559706.949             0.104            0.081
-Chain 1:   1300    -28474935.327             0.077            0.070
-Chain 1:   1400    -27530699.160             0.064            0.061
-Chain 1:   1500    -26698219.449             0.055            0.053
-Chain 1:   1600    -25944401.570             0.049            0.047
-Chain 1:   1700    -25287308.192             0.043            0.042
-Chain 1:   1800    -24690624.955             0.039            0.038
-Chain 1:   1900    -24160947.818             0.035            0.034
-Chain 1:   2000    -23683162.157             0.031            0.031
-Chain 1:   2100    -23249587.266             0.029            0.029
-Chain 1:   2200    -22863841.826             0.026            0.026
-Chain 1:   2300    -22511759.353             0.024            0.024
-Chain 1:   2400    -22195116.004             0.022            0.022
-Chain 1:   2500    -21911818.977             0.020            0.020
-Chain 1:   2600    -21658464.199             0.018            0.019
-Chain 1:   2700    -21427457.111             0.017            0.017
-Chain 1:   2800    -21217341.358             0.015            0.016
-Chain 1:   2900    -21028919.131             0.014            0.014
-Chain 1:   3000    -20858398.183             0.013            0.013
-Chain 1:   3100    -20704895.615             0.012            0.012
-Chain 1:   3200    -20558554.504             0.011            0.011
-Chain 1:   3300    -20420888.342             0.010            0.010   MEAN ELBO CONVERGED   MEDIAN ELBO CONVERGED
-Chain 1: 
-Chain 1: Drawing a sample of size 1000 from the approximate posterior... 
-Chain 1: COMPLETED.</code></pre>
-<pre><code>Warning: Pareto k diagnostic value is Inf. Resampling is disabled. Decreasing
-tol_rel_obj may help if variational algorithm has terminated prematurely.
-Otherwise consider using sampling instead.</code></pre>
-<pre class="r"><code>theta &lt;- fitIBD@sim[[&quot;est&quot;]][[&quot;theta&quot;]]
+fitIBD &lt;- vb(stan.model, data=zinLDA_stan_data, algorithm=&quot;meanfield&quot;, importance_resampling=TRUE, iter=10000,tol_rel_obj=0.01,elbo_samples=500)
+
+theta &lt;- fitIBD@sim[[&quot;est&quot;]][[&quot;theta&quot;]]
 beta &lt;- fitIBD@sim[[&quot;est&quot;]][[&quot;beta&quot;]]
 X_tilde &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the kncokoff copy</code></pre>
 <p>Fitting the Random Forest model associating the augmented set of
@@ -843,7 +820,9 @@ W &lt;- stat.random_forest(X,X_tilde,Y)
 T &lt;- knockoff.threshold(W,fdr=0.1,offset = 0) ## This is the knockoff filter threshold
 print(which(W&gt;=T))</code></pre>
 <pre><code> [1]  8 16 22 24 28 32 37 61 65 69</code></pre>
-<pre class="r"><code>names &lt;- colnames(X[,which(W&gt;=T)]) ## Extracting the names of the important genera
+<pre class="r"><code>#names &lt;- colnames(X[,which(W&gt;=T)]) ## Extracting the names of the important genera
+
+names &lt;- c(&quot;Ruminococcaceae (Family)&quot;, &quot;Parabacteroides&quot;, &quot;Rikenellaceae (Family)&quot;, &quot;Oscillospira&quot;, &quot;Lachnospira&quot;,&quot;Coprococcus&quot;,&quot;Bilophila&quot;,&quot;Anaerostipes&quot;,&quot;Lachnobacterium&quot;,&quot;Holdemania&quot;)
 data.genus &lt;- data.frame(
   impscores = sort(W[which(W&gt;=T)], decreasing=FALSE) , 
   name = factor(names, levels = names),
@@ -854,7 +833,44 @@ plt.genus &lt;- ggplot(data.genus) +
   geom_col(aes(impscores, name), fill = &quot;black&quot;, width = 0.6)+theme_bw()+ylab(&quot;Genera&quot;)+xlab(&quot;Feature Statistic&quot;)
 
 plt.genus</code></pre>
-<p><img src="figure/IBD.Rmd/imp-scores-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/IBD.Rmd/imp-scores-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-imp-scores-1">
+Past versions of imp-scores-1.png
+</button>
+</p>
+<div id="fig-imp-scores-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/figure/IBD.Rmd/imp-scores-1.png" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
