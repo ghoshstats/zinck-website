@@ -9,7 +9,7 @@ editor_options:
 
 ## CRC Data Analysis 
 
-We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on the most abundant $300$ species.
+We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
 
 ```{r CRC-data}
 ##################### CRC data species level ##########################
@@ -23,16 +23,17 @@ library(rstan)
 
 load("/Users/Patron/Documents/zinLDA research/count.Rdata")
 load("/Users/Patron/Documents/zinLDA research/meta.RData")
-dcount <- count[,order(decreasing=T,colSums(count,na.rm=T),
-                       apply(count,2L,paste,collapse=''))][,1:300]
-## ordering the columns w/ decreasing abundance
+norm_count <- count/rowSums(count)
+col_means <- colMeans(norm_count>0)
+indices <- which(col_means > 0.2)
+sorted_indices <- indices[order(col_means[indices],decreasing = TRUE)]
+dcount <- count[,sorted_indices]
+
 X <- dcount
-Y <- as.factor(meta$Group)
-lookup <- c("CTR" = 0, "CRC" = 1)
-Y <- lookup[Y]    ## Converting into 0/1 data
+Y <- ifelse(meta$Group=="CRC",1,0)
 ```
 
-We train the zinck model on $X$ using ADVI with an optimal number of clusters (19). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
+We train the zinck model on $X$ using ADVI with an optimal number of clusters (20). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
 
 ```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 dlt <- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
@@ -52,12 +53,13 @@ for(t in (1:ncol(X)))
 }
 
 zinLDA_stan_data <- list(
-  K = 19,
+  K = 20,
   V = ncol(X),
   D = nrow(X),
   n = X,
   delta = dlt
 )
+
 
 zinck_code <- "data {
   int<lower=1> K; // num topics
@@ -134,43 +136,73 @@ fitCRC <- vb(stan.model, data=zinLDA_stan_data, algorithm="meanfield", iter=1000
 theta <- fitCRC@sim[["est"]][["theta"]]
 beta <- fitCRC@sim[["est"]][["beta"]]
 X_tilde_CRC <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy
-
 ```
 
 We move on to fit a tuned Random Forest model relating the augmented set of covariates with the outcome of interest $Y$.
 
 ```{r rf-model}
-
-X_aug <- cbind(X,X_tilde_CRC) ## Creating the augmented matrix
-
-######### Tuning the Random Forest model ####################
-bestmtry <- tuneRF(X_aug,as.factor(Y),stepFactor = 1.5,improve=1e-5,ntree=1000, plot=FALSE) ## Getting the best mtry hyperparameter
-m <- bestmtry[as.numeric(which.min(bestmtry[,"OOBError"])),1]
+X_aug <- cbind(X,X_tilde_CRC) 
 df_X <- as.data.frame(X_aug)
 colnames(df_X) <- NULL
 rownames(df_X) <- NULL
 df_X$Y <- Y
-model_rf <- randomForest(formula=as.factor(Y)~.,ntree=1000,mtry=m,
-                         importance=TRUE,data=as.matrix(df_X)) ## Fitting the tuned Random Forest model
+set.seed(1)
+model_rf <- randomForest(formula=as.factor(Y)~.,ntree=1000,mtry=28,importance=TRUE,data=as.matrix(df_X)) 
 cf <- as.data.frame(importance(model_rf))[,3] ## Extracting the Mean Decrease in Impurities for each variable
-W <- abs(cf[1:300])-abs(cf[301:600])
-T <- knockoff.threshold(W,fdr = 0.1, offset = 0) ## This is the knockoff threshold
-print(which(W>=T))
+W <- abs(cf[1:401])-abs(cf[402:802])
+T <- knockoff.threshold(W,fdr = 0.1, offset = 1) ## This is the knockoff threshold
 names_zinck <- colnames(X[,which(W>=T)])
+
+
 ```
 
 Finally, we can visualize the importance of these selected species using the Feature Statistics obtained by contrasting the Random Forest importance scores of the original and the knockoff features.
 
 ```{r imp-plots}
 
-data.species <- data.frame(impscores=sort(W[which(W>=T)],decreasing = FALSE), 
-                         name=factor(names_zinck, levels=names_zinck), y=seq(length(names_zinck))*0.9)
+names_zinck <- c("Ruminococcus torques species (1376)","Bacteroides caccae species (1382)","Clostridium symbiosum species (1475)","Hungatella hathewayi species (0882)","Unknown Ruminococcus species (6664)","Unknown Clostridiales species (6105)",  "Parvimonas micra species (1145)","Unknown Clostridium species (5413)","Gemella morbillorum species (4513)","Unknown Clostridiales species (6009)","Clostridium clostridioforme species (0979)", "Peptostreptococcus stomatis species (4614)","Solobacterium moorei species (0531)","Fusobacterium nucleatum species (0776)")
 
-plot.species <- ggplot(data.species)+geom_col(aes(impscores,name),
-                                          fill="black",width=0.6)+theme_bw()+
-  ylab("Species")+xlab("Feature Statistic")
 
-plot.species
+data.species <- data.frame(             ### Creating the data frame with Feature Importance Statistics
+  impscores = sort(W[which(W>=T)], decreasing=FALSE) , 
+  name = factor(names_zinck, levels = names_zinck),
+  y = seq(length(names_zinck)) * 0.9
+)
+
+norm_count <- count/rowSums(count)
+col_means <- colMeans(norm_count>0)
+indices <- which(col_means > 0)
+sorted_indices <- indices[order(col_means[indices],decreasing = TRUE)]
+Xnorm <-norm_count[,sorted_indices]
+
+# Calculate the column sums for cases and controls
+case_sums <- colMeans(Xnorm[Y == 1, which(W>=T)])
+control_sums <- colMeans(Xnorm[Y == 0, which(W>=T)])
+
+# Determine colors based on the sum comparison
+colors <- ifelse(case_sums > control_sums, "red", "blue")
+
+# Create a data frame for plotting
+data.species <- data.frame(
+  impscores = sort(W[which(W >= T)], decreasing = FALSE),
+  name = factor(names_zinck, levels = names_zinck),
+  y = seq(length(names_zinck)) * 0.9,
+  color = colors
+)
+
+plt.species <- ggplot(data.species) +
+  geom_col(aes(impscores, name, fill = color), width = 0.6) +
+  scale_fill_identity() +
+  theme_bw() +
+  ylab("Species") +
+  xlab("Feature Statistic") +
+  theme(
+    axis.title.x = element_text(size = 22),
+    axis.title.y = element_text(size = 22),
+    axis.text.x = element_text(size = 18),
+    axis.text.y = element_text(size = 18, face = data.species$fontface) # Adjust fontface based on the condition
+  )
+print(plt.species)
 
 
 ```
