@@ -3,12 +3,20 @@ output_dir: ../docs
 navbar:
   title: "zinck-website"
   left:
-  - text: Home
-    href: index.html
-  - text: About
-    href: about.html
-  - text: License
-    href: license.html
+    - text: Home
+      href: index.html
+    - text: About
+      href: about.html
+    - text: License
+      href: license.html
+    - text: Simulations
+      href: simulation.html
+    - text: Heatmaps
+      href: Heatmaps.html
+    - text: CRC
+      href: CRC.html
+    - text: IBD
+      href: IBD.html
 output:
   workflowr::wflow_html:
     toc: yes

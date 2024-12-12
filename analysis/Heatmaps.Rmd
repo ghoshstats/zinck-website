@@ -1,7 +1,7 @@
 ---
 title: "Heatmaps"
 author: "Soham Ghosh"
-date: "2024-06-17"
+date: "2024-12-11"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
@@ -9,9 +9,9 @@ editor_options:
 
 ## Comparing the Heatmaps for Original and Knockoff Sample Taxa Matrices
 
-We demonstrate the ability of zinck to capture the compositional and highly sparse nature of microbiome count data by comparing the heatmaps of the original sample taxa matrix $\mathbf{X}$ with its high quality knockoff copy, $\tilde{\mathbf{X}}$.
+We demonstrate the ability of `zinck` to capture the compositional and highly sparse nature of microbiome count data by comparing the heatmaps of the original sample taxa matrix $\mathbf{X}$ with its high quality knockoff copy, $\tilde{\mathbf{X}}$.
 
-We consider a toy setting with $20$ samples and $30$ taxa with the library size between $400$ and $500$ for each sample, for a high zero-inflation level of $0.8$. We use the `simulateZINLDA()` function from the `zinLDA` package to generate the original sample taxa matrix. 
+We consider a toy setting with $20$ randomly selected samples and $30$ randomly selected CRC taxa at the species level. The sample library sizes vary between 650 and 2500. The zero-inflation level in the original sample taxa matrix is $0.6$. 
 
 ```{r heatmaps,message=FALSE, warning=FALSE,results='hide'}
 library(zinck)
@@ -21,24 +21,34 @@ library(reshape2)
 library(gridExtra)
 library(cowplot)
 
+load("/Users/Patron/Documents/zinLDA research/count.Rdata")
+
+#count <- zinck::count ## Loading the CRC species level data from the zinck package
+
 set.seed(1) 
-N.d=zinLDA::rdu(n=20,min=400,max=500) # Drawing random library sizes between 400, 500
-sim_data = zinLDA::simulateZINLDA(D=20,V=30,N=N.d,K=5,Alpha=0.1,Pi=0.8,a=0.5,b=10)
-X_original <- sim_data$sampleTaxaMatrix ## The original sample taxa count matrix
-
-
-model_zinck <- fit.zinck(X_original, num_clusters=5, method="Gibbs", seed=1)
-Theta <- model_zinck$theta
-Beta <- model_zinck$beta
-
-X_zinck <- generateKnockoff(X_original,Theta,Beta,seed=1)
-rownames(X_zinck) <- rownames(X_original)
+selected_rows <- sample(1:nrow(count), 20)     ## Randomly select 20 subjects
+selected_cols <- sample(1:ncol(count),30)      ## Randomly select 30 taxa
+OTU <- count[selected_rows,selected_cols]      ## Resulting OTU matrix of dimensions 20*30
 
 ```
 
-We will now visualize the heatmaps of the original matrix and its corresponding knockoff copy. The   function applies an arcsinh transformation to the data for normalization and better visualization of abundance patterns and zero inflation within the sample taxa matrix.
+Next, we fit the ZIGD-augmented LDA model which is inbuilt within the `fit.zinck` function of the `zinck` package, and then use the posterior estimates of the latent parameters to generate the knockoff copy.
+
+```{r knockoff-copy, message=FALSE, warning=FALSE, results='hide'}
+
+X_original <- OTU
+model_zinck <- fit.zinck(X_original, num_clusters=11, method="ADVI", seed=2, tuned = FALSE, boundary_correction = TRUE,prior_ZIGD = TRUE)
+Theta <- model_zinck$theta
+Beta <- model_zinck$beta
+X_zinck <- generateKnockoff(X_original,Theta,Beta,seed=1)
+
+```
+
+
+We will now visualize the heatmaps of the original matrix and its corresponding knockoff copy. The `draw.heatmap` function applies an arcsinh transformation to the data for normalization and better visualization of abundance patterns and zero inflation within the sample taxa matrix. Note that, before displaying the heatmaps, we sort the taxa in decreasing order of average sparsity among all the subjects.
 
 ```{r heatmap-comparison, fig.width=15, fig.height=8}
+rownames(X_zinck) <- rownames(X_original)
 
 draw.heatmap <- function(X, title="") {
   reshape2::melt(asinh(X)) %>%
@@ -57,7 +67,13 @@ draw.heatmap <- function(X, title="") {
     theme(legend.position="none") +
     ggplot2::coord_fixed(ratio = 1)  # Fixing the aspect ratio
 }
+# Calculate the sparsity of each column for the Original OTU matrix
+sparsity1 <- apply(X_original, 2, function(col) 1 - mean(col > 0))
+sparsity2 <- apply(X_zinck, 2, function(col) 1 - mean(col > 0))
 
+# Order the matrices by decreasing sparsity
+X_original <- X_original[, order(sparsity1, decreasing = FALSE)]
+X_zinck <- X_zinck[, order(sparsity2, decreasing = FALSE)]
 
 heat1 <- draw.heatmap(X_original, "Original")
 heat2 <- draw.heatmap(X_zinck, "Knockoff")
@@ -65,4 +81,4 @@ plot_grid(heat1, heat2, ncol = 2, align="v")
 ```
 
 
-It is evident from the above heatmaps that the knockoff copy is almost indistinguishable from the original matrix! This underscores the fact that the knockoff copy preserves the underlying structure of the observed sample taxa count matrix. 
+It is evident from the above heatmaps that the knockoff copy depicts most of the features corresponding to the original matrix, in terms of zero-inflation and compositionality. This underscores the fact that the knockoff copy preserves the underlying structure of the observed sample taxa count matrix. 

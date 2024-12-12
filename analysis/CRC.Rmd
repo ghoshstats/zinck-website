@@ -1,19 +1,12 @@
 ---
 title: "Colorectal Cancer (CRC) Study"
 author: "Soham Ghosh"
-date: "2024-06-18"
+date: "2024-12-11"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
 ---
-
-## CRC Data Analysis 
-
-We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
-
-```{r CRC-data}
-##################### CRC data species level ##########################
-#######################################################################
+```{r defn, echo=FALSE}
 library(randomForest)
 library(zinck)
 library(reshape2)
@@ -23,44 +16,6 @@ library(rstan)
 
 load("/Users/Patron/Documents/zinLDA research/count.Rdata")
 load("/Users/Patron/Documents/zinLDA research/meta.RData")
-norm_count <- count/rowSums(count)
-col_means <- colMeans(norm_count>0)
-indices <- which(col_means > 0.2)
-sorted_indices <- indices[order(col_means[indices],decreasing = TRUE)]
-dcount <- count[,sorted_indices]
-
-X <- dcount
-Y <- ifelse(meta$Group=="CRC",1,0)
-```
-
-We train the zinck model on $X$ using ADVI with an optimal number of clusters (20). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
-
-```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
-dlt <- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
-
-for(t in (1:ncol(X)))
-{
-  dlt[t] <- 1-mean(X[,t]>0)
-  if(dlt[t]==0)
-  {
-    dlt[t] = dlt[t]+0.01
-  }
-  if (dlt[t]==1)
-  {
-    dlt[t] = dlt[t]-0.01
-  }
-  
-}
-
-zinLDA_stan_data <- list(
-  K = 20,
-  V = ncol(X),
-  D = nrow(X),
-  n = X,
-  delta = dlt
-)
-
-
 zinck_code <- "data {
   int<lower=1> K; // num topics
   int<lower=1> V; // num words
@@ -128,6 +83,53 @@ model {
 }
 "
 
+
+```
+
+## CRC Data Analysis 
+
+We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
+
+```{r CRC-data}
+##################### CRC data species level ##########################
+#######################################################################
+norm_count <- count/rowSums(count)
+col_means <- colMeans(norm_count>0)
+indices <- which(col_means > 0.2)
+sorted_indices <- indices[order(col_means[indices],decreasing = TRUE)]
+dcount <- count[,sorted_indices]
+
+X <- dcount
+Y <- ifelse(meta$Group=="CRC",1,0)
+```
+
+We train the zinck model on $X$ using ADVI with an optimal number of clusters (20). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
+
+```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
+dlt <- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
+
+for(t in (1:ncol(X)))
+{
+  dlt[t] <- 1-mean(X[,t]>0)
+  if(dlt[t]==0)
+  {
+    dlt[t] = dlt[t]+0.01
+  }
+  if (dlt[t]==1)
+  {
+    dlt[t] = dlt[t]-0.01
+  }
+  
+}
+
+zinLDA_stan_data <- list(
+  K = 20,
+  V = ncol(X),
+  D = nrow(X),
+  n = X,
+  delta = dlt
+)
+
 stan.model = stan_model(model_code = zinck_code)
 
 set.seed(1)
@@ -159,7 +161,6 @@ names_zinck <- colnames(X[,which(W>=T)])
 Finally, we can visualize the importance of these selected species using the Feature Statistics obtained by contrasting the Random Forest importance scores of the original and the knockoff features.
 
 ```{r imp-plots}
-
 names_zinck <- c("Ruminococcus torques species (1376)","Bacteroides caccae species (1382)","Clostridium symbiosum species (1475)","Hungatella hathewayi species (0882)","Unknown Ruminococcus species (6664)","Unknown Clostridiales species (6105)",  "Parvimonas micra species (1145)","Unknown Clostridium species (5413)","Gemella morbillorum species (4513)","Unknown Clostridiales species (6009)","Clostridium clostridioforme species (0979)", "Peptostreptococcus stomatis species (4614)","Solobacterium moorei species (0531)","Fusobacterium nucleatum species (0776)")
 
 
@@ -181,7 +182,10 @@ control_sums <- colMeans(Xnorm[Y == 0, which(W>=T)])
 
 # Determine colors based on the sum comparison
 colors <- ifelse(case_sums > control_sums, "red", "blue")
+```
 
+
+```{r imp-ggplots, fig.width=12, fig.height=8}
 # Create a data frame for plotting
 data.species <- data.frame(
   impscores = sort(W[which(W >= T)], decreasing = FALSE),
@@ -207,3 +211,4 @@ print(plt.species)
 
 ```
 
+Note that the red colored bars indicate positive marginal association between microbial relative abundance and the odds of CRC, while blue indicate  negative marginal association.
