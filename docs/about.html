@@ -261,6 +261,18 @@ $(document).ready(function () {
 <li>
   <a href="license.html">License</a>
 </li>
+<li>
+  <a href="simulation.html">Simulations</a>
+</li>
+<li>
+  <a href="Heatmaps.html">Heatmaps</a>
+</li>
+<li>
+  <a href="CRC.html">CRC</a>
+</li>
+<li>
+  <a href="IBD.html">IBD</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -281,7 +293,7 @@ $(document).ready(function () {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -292,8 +304,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -302,13 +314,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-06-18
+<strong>Last updated:</strong> 2024-12-12
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>zinck-website/</code> <span
@@ -331,36 +343,33 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreed4297f59f7c93bab5ff6585d3279bc9ad2cc9009targetblankd4297f5a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>
+<a href="https://github.com/ghoshstats/zinck-website/tree/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009" target="_blank">d4297f5</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree6e66a4e2865fa53e2f40c14be091fe8ba20ce787targetblank6e66a4ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreed4297f59f7c93bab5ff6585d3279bc9ad2cc9009targetblankd4297f5a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -370,7 +379,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ghoshstats/zinck-website/tree/6e66a4e2865fa53e2f40c14be091fe8ba20ce787" target="_blank">6e66a4e</a>.
+<a href="https://github.com/ghoshstats/zinck-website/tree/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009" target="_blank">d4297f5</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -386,17 +395,20 @@ were generated:
 <pre><code>
 Ignored files:
     Ignored:    .DS_Store
+    Ignored:    analysis/.DS_Store
 
 Untracked files:
-    Untracked:  analysis/CRC.Rmd
-    Untracked:  analysis/Heatmaps.Rmd
-    Untracked:  analysis/IBD.Rmd
-    Untracked:  analysis/simulation.Rmd
+    Untracked:  analysis/IBD.html
 
 Unstaged changes:
-    Modified:   analysis/about.Rmd
+    Modified:   .gitignore
+    Modified:   analysis/CRC.Rmd
+    Deleted:    analysis/CRC.html
+    Modified:   analysis/Heatmaps.Rmd
+    Modified:   analysis/IBD.Rmd
+    Modified:   analysis/_site.yml
     Modified:   analysis/index.Rmd
-    Modified:   analysis/license.Rmd
+    Modified:   analysis/simulation.Rmd
 
 </code></pre>
 <p>
@@ -441,6 +453,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ghoshstats/zinck-website/ab6400d9cffa98ff7313a24230d9ecd128a1845a/docs/about.html" target="_blank">ab6400d</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Build and publish the website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/a6c38f81ddf35b0d78bcc099268c13bc646997c5/analysis/about.Rmd" target="_blank">a6c38f8</a>
+</td>
+<td>
+Patron
+</td>
+<td>
+2024-06-18
+</td>
+<td>
+Add home, experiment, and simulation pages
+</td>
+</tr>
 <tr>
 <td>
 Rmd
