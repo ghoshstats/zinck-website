@@ -9,7 +9,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Welcome to the Zinck Research Website
+# Welcome to the Zinck Research Website!
 
 This website documents the research and experiments related to the `zinck` package.
 
