@@ -1,12 +1,15 @@
 ---
 title: "Colorectal Cancer (CRC) Study"
 author: "Soham Ghosh"
-date: "2024-12-11"
+date: "2024-12-16"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
 ---
-```{r defn, echo=FALSE}
+
+## CRC Data Analysis 
+
+```{r defn, echo=FALSE,message=FALSE, warning=FALSE, results='hide'}
 library(randomForest)
 library(zinck)
 library(reshape2)
@@ -14,81 +17,82 @@ library(knockoff)
 library(ggplot2)
 library(rstan)
 
-load("/Users/Patron/Documents/zinLDA research/count.Rdata")
-load("/Users/Patron/Documents/zinLDA research/meta.RData")
-zinck_code <- "data {
-  int<lower=1> K; // num topics
-  int<lower=1> V; // num words
-  int<lower=0> D; // num docs
-  int<lower=0> n[D, V]; // word counts for each doc
-
-  // hyperparameters
-  vector<lower=0, upper=1>[V] delta;
-}
-
-parameters {
-  simplex[K] theta[D]; // topic mixtures
-  vector<lower=0, upper=1>[V] zeta[K]; // zero-inflated betas
-  vector<lower=0>[V] gamma1[K];
-  vector<lower=0>[V] gamma2[K];
-  vector<lower=0>[K] alpha;
-}
-
-transformed parameters {
-  vector[V] beta[K];
-
-  // Efficiently compute beta using vectorized operations
-  for (k in 1:K) {
-    vector[V] cum_log1m;
-    cum_log1m[1:(V - 1)] = cumulative_sum(log1m(zeta[k, 1:(V - 1)]));
-    cum_log1m[V] = 0;
-    beta[k] = zeta[k] .* exp(cum_log1m);
-    beta[k] = beta[k] / sum(beta[k]);
-  }
-}
+load("/Users/Patron/Documents/zinck research/count.Rdata")
+load("/Users/Patron/Documents/zinck research/meta.RData")
+names_zinck <- c("Ruminococcus torques species (1376)","Bacteroides caccae species (1382)","Clostridium symbiosum species (1475)","Hungatella hathewayi species (0882)","Unknown Ruminococcus species (6664)","Unknown Clostridiales species (6105)",  "Parvimonas micra species (1145)","Unknown Clostridium species (5413)","Gemella morbillorum species (4513)","Unknown Clostridiales species (6009)","Clostridium clostridioforme species (0979)", "Peptostreptococcus stomatis species (4614)","Solobacterium moorei species (0531)","Fusobacterium nucleatum species (0776)")
 
 
-model {
-  for (k in 1:K) {
-    alpha[k] ~ gamma(100,100);  // Change these hyperparameters as needed
-  }
-  for (d in 1:D) {
-    theta[d] ~ dirichlet(alpha);
-  }
-  for (k in 1:K) {
-    for (m in 1:V) {
-        gamma1[k,m] ~ gamma(1,1);
-        gamma2[k,m] ~ gamma(1,1);
-    }
-  }
-
-  // Zero-inflated beta likelihood and data likelihood
-  for (k in 1:K) {
-    for (m in 1:V) {
-      real lp_non_zero = bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k, m] | gamma1[k, m], gamma2[k, m]);
-      real lp_zero = bernoulli_lpmf(1 | delta[m]);
-      target += log_sum_exp(lp_non_zero, lp_zero);
-    }
-  }
-
-  // Compute the eta values and data likelihood more efficiently
-  for (d in 1:D) {
-    vector[V] eta = theta[d, 1] * beta[1];
-    for (k in 2:K) {
-      eta += theta[d, k] * beta[k];
-    }
-    eta = eta / sum(eta);
-    n[d] ~ multinomial(eta);
-  }
-}
-"
-
+# zinck_code <- "data {
+#   int<lower=1> K; // num topics
+#   int<lower=1> V; // num words
+#   int<lower=0> D; // num docs
+#   int<lower=0> n[D, V]; // word counts for each doc
+# 
+#   // hyperparameters
+#   vector<lower=0, upper=1>[V] delta;
+# }
+# 
+# parameters {
+#   simplex[K] theta[D]; // topic mixtures
+#   vector<lower=0, upper=1>[V] zeta[K]; // zero-inflated betas
+#   vector<lower=0>[V] gamma1[K];
+#   vector<lower=0>[V] gamma2[K];
+#   vector<lower=0>[K] alpha;
+# }
+# 
+# transformed parameters {
+#   vector[V] beta[K];
+# 
+#   // Efficiently compute beta using vectorized operations
+#   for (k in 1:K) {
+#     vector[V] cum_log1m;
+#     cum_log1m[1:(V - 1)] = cumulative_sum(log1m(zeta[k, 1:(V - 1)]));
+#     cum_log1m[V] = 0;
+#     beta[k] = zeta[k] .* exp(cum_log1m);
+#     beta[k] = beta[k] / sum(beta[k]);
+#   }
+# }
+# 
+# 
+# model {
+#   for (k in 1:K) {
+#     alpha[k] ~ gamma(100,100);  // Change these hyperparameters as needed
+#   }
+#   for (d in 1:D) {
+#     theta[d] ~ dirichlet(alpha);
+#   }
+#   for (k in 1:K) {
+#     for (m in 1:V) {
+#         gamma1[k,m] ~ gamma(1,1);
+#         gamma2[k,m] ~ gamma(1,1);
+#     }
+#   }
+# 
+#   // Zero-inflated beta likelihood and data likelihood
+#   for (k in 1:K) {
+#     for (m in 1:V) {
+#       real lp_non_zero = bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k, m] | gamma1[k, m], gamma2[k, m]);
+#       real lp_zero = bernoulli_lpmf(1 | delta[m]);
+#       target += log_sum_exp(lp_non_zero, lp_zero);
+#     }
+#   }
+# 
+#   // Compute the eta values and data likelihood more efficiently
+#   for (d in 1:D) {
+#     vector[V] eta = theta[d, 1] * beta[1];
+#     for (k in 2:K) {
+#       eta += theta[d, k] * beta[k];
+#     }
+#     eta = eta / sum(eta);
+#     n[d] ~ multinomial(eta);
+#   }
+# }
+# "
+# 
 
 ```
 
-## CRC Data Analysis 
-
-We applied Zinck to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
+We applied ``zinck`` to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
 
 ```{r CRC-data}
 ##################### CRC data species level ##########################
@@ -103,66 +107,35 @@ X <- dcount
 Y <- ifelse(meta$Group=="CRC",1,0)
 ```
 
-We train the zinck model on $X$ using ADVI with an optimal number of clusters (20). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters into the generative model.
+We train the ``zinck`` model on $X$ using ADVI with an optimal number of clusters (20). We generate the knockoff matrix $\tilde{X}$ by plugging in the learnt  parameters $\boldsymbol{\beta}$ and $\boldsymbol{\theta}$ into the generative model.
 
 ```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
-dlt <- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
 
-for(t in (1:ncol(X)))
-{
-  dlt[t] <- 1-mean(X[,t]>0)
-  if(dlt[t]==0)
-  {
-    dlt[t] = dlt[t]+0.01
-  }
-  if (dlt[t]==1)
-  {
-    dlt[t] = dlt[t]-0.01
-  }
-  
-}
+fitCRC <- fit.zinck(X,num_clusters=20,method="ADVI",seed=1,boundary_correction = TRUE,prior_ZIGD = TRUE)
+theta <- fitCRC$theta
+beta <- fitCRC$beta
+X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy
 
-zinLDA_stan_data <- list(
-  K = 20,
-  V = ncol(X),
-  D = nrow(X),
-  n = X,
-  delta = dlt
-)
-
-stan.model = stan_model(model_code = zinck_code)
-
-set.seed(1)
-fitCRC <- vb(stan.model, data=zinLDA_stan_data, algorithm="meanfield", iter=10000) ## Fitting the zinck model
-
-theta <- fitCRC@sim[["est"]][["theta"]]
-beta <- fitCRC@sim[["est"]][["beta"]]
-X_tilde_CRC <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy
 ```
 
-We move on to fit a tuned Random Forest model relating the augmented set of covariates with the outcome of interest $Y$.
+We then move on to fit a tuned Random Forest model relating the augmented set of covariates with the outcome of interest $Y$. The feature importance score used to construct the knockoff feature statistics $W$ is the Mean Decrease in Gini Impurity.
 
 ```{r rf-model}
-X_aug <- cbind(X,X_tilde_CRC) 
-df_X <- as.data.frame(X_aug)
-colnames(df_X) <- NULL
-rownames(df_X) <- NULL
-df_X$Y <- Y
-set.seed(1)
-model_rf <- randomForest(formula=as.factor(Y)~.,ntree=1000,mtry=28,importance=TRUE,data=as.matrix(df_X)) 
-cf <- as.data.frame(importance(model_rf))[,3] ## Extracting the Mean Decrease in Impurities for each variable
-W <- abs(cf[1:401])-abs(cf[402:802])
-T <- knockoff.threshold(W,fdr = 0.1, offset = 1) ## This is the knockoff threshold
-names_zinck <- colnames(X[,which(W>=T)])
+filter_zinck <- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),model="Random Forest",offset = 1,seed=1,mtry=28,rftuning=TRUE,metric = "Gini")
+
+selected_species <- filter_zinck$selected
 
 
+## Importance scores ##
+W <- filter_zinck$W
+
+## Threshold ##
+T <- filter_zinck$T
 ```
 
-Finally, we can visualize the importance of these selected species using the Feature Statistics obtained by contrasting the Random Forest importance scores of the original and the knockoff features.
+Finally, we can visualize the importance of these selected species using the Feature Statistics obtained by contrasting the Random Forest importance scores of the original and the knockoff features. 
 
 ```{r imp-plots}
-names_zinck <- c("Ruminococcus torques species (1376)","Bacteroides caccae species (1382)","Clostridium symbiosum species (1475)","Hungatella hathewayi species (0882)","Unknown Ruminococcus species (6664)","Unknown Clostridiales species (6105)",  "Parvimonas micra species (1145)","Unknown Clostridium species (5413)","Gemella morbillorum species (4513)","Unknown Clostridiales species (6009)","Clostridium clostridioforme species (0979)", "Peptostreptococcus stomatis species (4614)","Solobacterium moorei species (0531)","Fusobacterium nucleatum species (0776)")
-
 
 data.species <- data.frame(             ### Creating the data frame with Feature Importance Statistics
   impscores = sort(W[which(W>=T)], decreasing=FALSE) , 
@@ -184,6 +157,7 @@ control_sums <- colMeans(Xnorm[Y == 0, which(W>=T)])
 colors <- ifelse(case_sums > control_sums, "red", "blue")
 ```
 
+The plot showing the identified species in order of decreasing importance is attached below. 
 
 ```{r imp-ggplots, fig.width=12, fig.height=8}
 # Create a data frame for plotting
