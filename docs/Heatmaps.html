@@ -394,7 +394,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-12
+<strong>Last updated:</strong> 2024-12-16
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -528,15 +528,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree4240f3dbcb5fdabf3ba95a11b6f7eb42dbf17a46targetblank4240f3da">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreed4297f59f7c93bab5ff6585d3279bc9ad2cc9009targetblankd4297f5a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ghoshstats/zinck-website/tree/4240f3dbcb5fdabf3ba95a11b6f7eb42dbf17a46" target="_blank">4240f3d</a>
+<a href="https://github.com/ghoshstats/zinck-website/tree/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009" target="_blank">d4297f5</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetree4240f3dbcb5fdabf3ba95a11b6f7eb42dbf17a46targetblank4240f3da"
+id="strongRepositoryversionstrongahrefhttpsgithubcomghoshstatszinckwebsitetreed4297f59f7c93bab5ff6585d3279bc9ad2cc9009targetblankd4297f5a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -546,7 +546,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ghoshstats/zinck-website/tree/4240f3dbcb5fdabf3ba95a11b6f7eb42dbf17a46" target="_blank">4240f3d</a>.
+<a href="https://github.com/ghoshstats/zinck-website/tree/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009" target="_blank">d4297f5</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -574,6 +574,7 @@ Unstaged changes:
     Modified:   analysis/Heatmaps.Rmd
     Modified:   analysis/IBD.Rmd
     Modified:   analysis/_site.yml
+    Modified:   analysis/index.Rmd
     Modified:   analysis/simulation.Rmd
 
 </code></pre>
@@ -620,6 +621,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ghoshstats/zinck-website/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009/docs/Heatmaps.html" target="_blank">d4297f5</a>
+</td>
+<td>
+ghoshstats
+</td>
+<td>
+2024-12-12
+</td>
+<td>
+Manually deploy website with existing HTML files
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -739,36 +757,37 @@ compositional and highly sparse nature of microbiome count data by
 comparing the heatmaps of the original sample taxa matrix <span
 class="math inline">\(\mathbf{X}\)</span> with its high quality knockoff
 copy, <span class="math inline">\(\tilde{\mathbf{X}}\)</span>.</p>
-<p>We consider a toy setting with <span
+<p>The CRC dataset contain 574 subjects (290 CRC cases and 284 controls)
+and 849 gut bacterial species. Our analysis focuses on 401 species with
+an average relative abundance greater than 0.2 across all subjects.
+Then, we consider a toy setting with <span
 class="math inline">\(20\)</span> randomly selected samples and <span
 class="math inline">\(30\)</span> randomly selected CRC taxa at the
-species level. The sample library sizes vary between 650 and 2500. The
-zero-inflation level in the original sample taxa matrix is <span
-class="math inline">\(0.6\)</span>.</p>
-<pre class="r"><code>library(zinck)
-library(zinLDA)
-library(ggplot2)
-library(reshape2)
-library(gridExtra)
-library(cowplot)
+species level. The sample library sizes vary between 17 and 4588, within
+an average library size of 1329. The zero-inflation level in the
+original sample taxa matrix is <span
+class="math inline">\(0.51\)</span>.</p>
+<pre class="r"><code>
+load(&quot;/Users/Patron/Documents/zinck research/count.RData&quot;) 
+norm_count &lt;- count/rowSums(count)
+col_means &lt;- colMeans(norm_count &gt; 0)
+indices &lt;- which(col_means &gt; 0.2)
+sorted_indices &lt;- indices[order(col_means[indices], decreasing=TRUE)]
+dcount &lt;- count[,sorted_indices][,1:400]
 
-load(&quot;/Users/Patron/Documents/zinLDA research/count.Rdata&quot;)
-
-#count &lt;- zinck::count ## Loading the CRC species level data from the zinck package
-
-set.seed(1) 
-selected_rows &lt;- sample(1:nrow(count), 20)     ## Randomly select 20 subjects
-selected_cols &lt;- sample(1:ncol(count),30)      ## Randomly select 30 taxa
-OTU &lt;- count[selected_rows,selected_cols]      ## Resulting OTU matrix of dimensions 20*30</code></pre>
+set.seed(123) 
+selected_rows &lt;- sample(1:nrow(dcount), 20)     ## Randomly select 20 subjects
+selected_cols &lt;- sample(1:ncol(dcount),30)      ## Randomly select 30 taxa
+X &lt;- dcount[selected_rows,selected_cols]      ## Resulting OTU matrix of dimensions 20*30</code></pre>
 <p>Next, we fit the ZIGD-augmented LDA model which is inbuilt within the
 <code>fit.zinck</code> function of the <code>zinck</code> package, and
 then use the posterior estimates of the latent parameters to generate
 the knockoff copy.</p>
-<pre class="r"><code>X_original &lt;- OTU
-model_zinck &lt;- fit.zinck(X_original, num_clusters=11, method=&quot;ADVI&quot;, seed=2, tuned = FALSE, boundary_correction = TRUE,prior_ZIGD = TRUE)
+<pre class="r"><code>
+model_zinck &lt;- fit.zinck(X, num_clusters=13, method=&quot;ADVI&quot;, seed=2, boundary_correction = TRUE,prior_ZIGD = TRUE)
 Theta &lt;- model_zinck$theta
 Beta &lt;- model_zinck$beta
-X_zinck &lt;- generateKnockoff(X_original,Theta,Beta,seed=1)</code></pre>
+X_zinck &lt;- generateKnockoff(X,Theta,Beta,seed=2)</code></pre>
 <p>We will now visualize the heatmaps of the original matrix and its
 corresponding knockoff copy. The <code>draw.heatmap</code> function
 applies an arcsinh transformation to the data for normalization and
@@ -776,34 +795,48 @@ better visualization of abundance patterns and zero inflation within the
 sample taxa matrix. Note that, before displaying the heatmaps, we sort
 the taxa in decreasing order of average sparsity among all the
 subjects.</p>
-<pre class="r"><code>rownames(X_zinck) &lt;- rownames(X_original)
-
-draw.heatmap &lt;- function(X, title=&quot;&quot;) {
+<pre class="r"><code>rownames(X_zinck) &lt;- rownames(X)
+draw.heatmap &lt;- function(X, title = &quot;&quot;) {
   reshape2::melt(asinh(X)) %&gt;%
     dplyr::rename(sample = Var1, taxa = Var2, asinh.abun = value) %&gt;%
-    ggplot2::ggplot(., aes (x = taxa, y = sample, fill = asinh.abun)) +
-    ggplot2::geom_tile() + ggplot2::theme_bw() + ggplot2::ggtitle(title) +
+    ggplot2::ggplot(., aes(x = taxa, y = sample, fill = asinh.abun)) +
+    ggplot2::geom_tile() +
+    ggplot2::theme_bw() +
+    ggplot2::ggtitle(title) +
     ggplot2::labs(fill = &quot;arcsinh\nabundance&quot;) +
-    ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                   axis.title.x=element_blank(), axis.title.y=element_blank(),
-                   axis.text.x = element_text(size=3, angle=90), axis.text.y = element_text(size=4)) +
-   viridis::scale_fill_viridis(discrete = FALSE, direction = -1, na.value = &quot;grey&quot;) +
-    theme(axis.title.x = element_blank(),axis.text.x = element_blank(),axis.ticks.x=element_blank(),
-          axis.title.y = element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())+
-    theme(panel.grid.major=element_blank(),panel.grid.minor = element_blank(),
-          panel.background = element_blank(),panel.border = element_blank())+
-    theme(legend.position=&quot;none&quot;) +
+    ggplot2::theme(
+      plot.title = element_text(hjust = 0.5, size = 24),  # Increase font size here
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.x = element_text(size = 3, angle = 90),
+      axis.text.y = element_text(size = 4)
+    ) +
+    viridis::scale_fill_viridis(discrete = FALSE, direction = -1, na.value = &quot;grey&quot;) +
+    theme(
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      legend.position = &quot;none&quot;
+    ) +
     ggplot2::coord_fixed(ratio = 1)  # Fixing the aspect ratio
 }
+
 # Calculate the sparsity of each column for the Original OTU matrix
-sparsity1 &lt;- apply(X_original, 2, function(col) 1 - mean(col &gt; 0))
+sparsity1 &lt;- apply(X, 2, function(col) 1 - mean(col &gt; 0))
 sparsity2 &lt;- apply(X_zinck, 2, function(col) 1 - mean(col &gt; 0))
 
 # Order the matrices by decreasing sparsity
-X_original &lt;- X_original[, order(sparsity1, decreasing = FALSE)]
+X &lt;- X[, order(sparsity1, decreasing = FALSE)]
 X_zinck &lt;- X_zinck[, order(sparsity2, decreasing = FALSE)]
 
-heat1 &lt;- draw.heatmap(X_original, &quot;Original&quot;)
+heat1 &lt;- draw.heatmap(X, &quot;Original&quot;)
 heat2 &lt;- draw.heatmap(X_zinck, &quot;Knockoff&quot;)
 plot_grid(heat1, heat2, ncol = 2, align=&quot;v&quot;)</code></pre>
 <p><img src="figure/Heatmaps.Rmd/heatmap-comparison-1.png" width="1440" style="display: block; margin: auto;" /></p>
@@ -829,6 +862,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/ghoshstats/zinck-website/blob/d4297f59f7c93bab5ff6585d3279bc9ad2cc9009/docs/figure/Heatmaps.Rmd/heatmap-comparison-1.png" target="_blank">d4297f5</a>
+</td>
+<td>
+ghoshstats
+</td>
+<td>
+2024-12-12
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/ghoshstats/zinck-website/blob/22a846bc7d92026cf1959f735ffb4732fa6559f8/docs/figure/Heatmaps.Rmd/heatmap-comparison-1.png" target="_blank">22a846b</a>
@@ -868,8 +912,8 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 4.1.3 (2022-03-10)
+<pre class="r"><code>sessionInfo()
+R version 4.1.3 (2022-03-10)
 Platform: x86_64-apple-darwin17.0 (64-bit)
 Running under: macOS Big Sur/Monterey 10.16
 
@@ -884,8 +928,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] cowplot_1.1.1     gridExtra_2.3     reshape2_1.4.4    ggplot2_3.4.2    
-[5] zinLDA_0.0.0.9000 zinck_0.0.0.9000 
+ [1] cowplot_1.1.1        randomForest_4.7-1.1 gridExtra_2.3       
+ [4] glmnet_4.1-7         Matrix_1.5-1         reshape2_1.4.4      
+ [7] ggplot2_3.4.2        zinLDA_0.0.0.9000    dplyr_1.1.2         
+[10] knockoff_0.3.6       zinck_0.0.0.9000    
 
 loaded via a namespace (and not attached):
  [1] viridis_0.6.5        sass_0.4.6           jsonlite_1.8.5      
@@ -893,28 +939,26 @@ loaded via a namespace (and not attached):
  [7] bslib_0.5.0          RcppParallel_5.1.7   StanHeaders_2.21.0-7
 [10] highr_0.10           stats4_4.1.3         yaml_2.3.7          
 [13] pillar_1.9.0         lattice_0.21-8       glue_1.6.2          
-[16] digest_0.6.31        promises_1.2.0.1     randomForest_4.7-1.1
-[19] colorspace_2.1-0     htmltools_0.5.5      httpuv_1.6.11       
-[22] Matrix_1.5-1         plyr_1.8.8           pkgconfig_2.0.3     
-[25] rstan_2.21.8         scales_1.2.1         processx_3.8.1      
-[28] whisker_0.4.1        later_1.3.1          git2r_0.32.0        
-[31] tibble_3.2.1         generics_0.1.3       farver_2.1.1        
-[34] cachem_1.0.8         withr_2.5.0          cli_3.6.1           
-[37] survival_3.5-5       magrittr_2.0.3       crayon_1.5.2        
-[40] evaluate_0.21        ps_1.7.5             fs_1.6.2            
-[43] fansi_1.0.4          pkgbuild_1.4.2       tools_4.1.3         
-[46] loo_2.6.0            prettyunits_1.1.1    lifecycle_1.0.3     
-[49] matrixStats_0.63.0   stringr_1.5.0        munsell_0.5.0       
-[52] glmnet_4.1-7         knockoff_0.3.6       callr_3.7.3         
-[55] compiler_4.1.3       jquerylib_0.1.4      rlang_1.1.1         
-[58] grid_4.1.3           iterators_1.0.14     rstudioapi_0.14     
-[61] rmarkdown_2.22       gtable_0.3.3         codetools_0.2-19    
-[64] inline_0.3.19        DBI_1.1.3            R6_2.5.1            
-[67] knitr_1.43           dplyr_1.1.2          fastmap_1.1.1       
-[70] utf8_1.2.3           workflowr_1.7.1      rprojroot_2.0.3     
-[73] shape_1.4.6          stringi_1.7.12       parallel_4.1.3      
-[76] Rcpp_1.0.10          vctrs_0.6.5          tidyselect_1.2.0    
-[79] xfun_0.39           </code></pre>
+[16] digest_0.6.31        promises_1.2.0.1     colorspace_2.1-0    
+[19] htmltools_0.5.5      httpuv_1.6.11        plyr_1.8.8          
+[22] pkgconfig_2.0.3      rstan_2.21.8         scales_1.2.1        
+[25] processx_3.8.1       whisker_0.4.1        later_1.3.1         
+[28] git2r_0.32.0         tibble_3.2.1         generics_0.1.3      
+[31] farver_2.1.1         cachem_1.0.8         withr_2.5.0         
+[34] cli_3.6.1            survival_3.5-5       magrittr_2.0.3      
+[37] crayon_1.5.2         evaluate_0.21        ps_1.7.5            
+[40] fs_1.6.2             fansi_1.0.4          pkgbuild_1.4.2      
+[43] tools_4.1.3          loo_2.6.0            prettyunits_1.1.1   
+[46] lifecycle_1.0.3      matrixStats_0.63.0   stringr_1.5.0       
+[49] munsell_0.5.0        callr_3.7.3          compiler_4.1.3      
+[52] jquerylib_0.1.4      rlang_1.1.1          grid_4.1.3          
+[55] iterators_1.0.14     rstudioapi_0.14      rmarkdown_2.22      
+[58] gtable_0.3.3         codetools_0.2-19     inline_0.3.19       
+[61] DBI_1.1.3            R6_2.5.1             knitr_1.43          
+[64] fastmap_1.1.1        utf8_1.2.3           workflowr_1.7.1     
+[67] rprojroot_2.0.3      shape_1.4.6          stringi_1.7.12      
+[70] parallel_4.1.3       Rcpp_1.0.10          vctrs_0.6.5         
+[73] tidyselect_1.2.0     xfun_0.39           </code></pre>
 </div>
 </div>
 
