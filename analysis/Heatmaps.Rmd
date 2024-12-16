@@ -1,46 +1,53 @@
 ---
 title: "Heatmaps"
 author: "Soham Ghosh"
-date: "2024-12-11"
+date: "2024-12-16"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
 ---
-
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE,message=FALSE)
+library(zinck)
+library(knockoff)
+library(dplyr)
+library(zinLDA)
+library(ggplot2)
+library(reshape2)
+library(glmnet)
+library(gridExtra)
+library(randomForest)
+library(cowplot)
+```
 ## Comparing the Heatmaps for Original and Knockoff Sample Taxa Matrices
 
 We demonstrate the ability of `zinck` to capture the compositional and highly sparse nature of microbiome count data by comparing the heatmaps of the original sample taxa matrix $\mathbf{X}$ with its high quality knockoff copy, $\tilde{\mathbf{X}}$.
 
-We consider a toy setting with $20$ randomly selected samples and $30$ randomly selected CRC taxa at the species level. The sample library sizes vary between 650 and 2500. The zero-inflation level in the original sample taxa matrix is $0.6$. 
+The CRC dataset contain 574 subjects (290 CRC cases and 284 controls) and 849 gut bacterial species.  Our analysis focuses on 401 species with an average relative abundance greater than 0.2 across all subjects. Then, we consider a toy setting with $20$ randomly selected samples and $30$ randomly selected CRC taxa at the species level. The sample library sizes vary between 17 and 4588, within an average library size of 1329. The zero-inflation level in the original sample taxa matrix is $0.51$. 
 
 ```{r heatmaps,message=FALSE, warning=FALSE,results='hide'}
-library(zinck)
-library(zinLDA)
-library(ggplot2)
-library(reshape2)
-library(gridExtra)
-library(cowplot)
 
-load("/Users/Patron/Documents/zinLDA research/count.Rdata")
+load("/Users/Patron/Documents/zinck research/count.RData") 
+norm_count <- count/rowSums(count)
+col_means <- colMeans(norm_count > 0)
+indices <- which(col_means > 0.2)
+sorted_indices <- indices[order(col_means[indices], decreasing=TRUE)]
+dcount <- count[,sorted_indices][,1:400]
 
-#count <- zinck::count ## Loading the CRC species level data from the zinck package
-
-set.seed(1) 
-selected_rows <- sample(1:nrow(count), 20)     ## Randomly select 20 subjects
-selected_cols <- sample(1:ncol(count),30)      ## Randomly select 30 taxa
-OTU <- count[selected_rows,selected_cols]      ## Resulting OTU matrix of dimensions 20*30
-
+set.seed(123) 
+selected_rows <- sample(1:nrow(dcount), 20)     ## Randomly select 20 subjects
+selected_cols <- sample(1:ncol(dcount),30)      ## Randomly select 30 taxa
+X <- dcount[selected_rows,selected_cols]      ## Resulting OTU matrix of dimensions 20*30
 ```
 
 Next, we fit the ZIGD-augmented LDA model which is inbuilt within the `fit.zinck` function of the `zinck` package, and then use the posterior estimates of the latent parameters to generate the knockoff copy.
 
 ```{r knockoff-copy, message=FALSE, warning=FALSE, results='hide'}
 
-X_original <- OTU
-model_zinck <- fit.zinck(X_original, num_clusters=11, method="ADVI", seed=2, tuned = FALSE, boundary_correction = TRUE,prior_ZIGD = TRUE)
+model_zinck <- fit.zinck(X, num_clusters=13, method="ADVI", seed=2, boundary_correction = TRUE,prior_ZIGD = TRUE)
 Theta <- model_zinck$theta
 Beta <- model_zinck$beta
-X_zinck <- generateKnockoff(X_original,Theta,Beta,seed=1)
+X_zinck <- generateKnockoff(X,Theta,Beta,seed=2)
 
 ```
 
@@ -48,37 +55,50 @@ X_zinck <- generateKnockoff(X_original,Theta,Beta,seed=1)
 We will now visualize the heatmaps of the original matrix and its corresponding knockoff copy. The `draw.heatmap` function applies an arcsinh transformation to the data for normalization and better visualization of abundance patterns and zero inflation within the sample taxa matrix. Note that, before displaying the heatmaps, we sort the taxa in decreasing order of average sparsity among all the subjects.
 
 ```{r heatmap-comparison, fig.width=15, fig.height=8}
-rownames(X_zinck) <- rownames(X_original)
-
-draw.heatmap <- function(X, title="") {
+rownames(X_zinck) <- rownames(X)
+draw.heatmap <- function(X, title = "") {
   reshape2::melt(asinh(X)) %>%
     dplyr::rename(sample = Var1, taxa = Var2, asinh.abun = value) %>%
-    ggplot2::ggplot(., aes (x = taxa, y = sample, fill = asinh.abun)) +
-    ggplot2::geom_tile() + ggplot2::theme_bw() + ggplot2::ggtitle(title) +
+    ggplot2::ggplot(., aes(x = taxa, y = sample, fill = asinh.abun)) +
+    ggplot2::geom_tile() +
+    ggplot2::theme_bw() +
+    ggplot2::ggtitle(title) +
     ggplot2::labs(fill = "arcsinh\nabundance") +
-    ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                   axis.title.x=element_blank(), axis.title.y=element_blank(),
-                   axis.text.x = element_text(size=3, angle=90), axis.text.y = element_text(size=4)) +
-   viridis::scale_fill_viridis(discrete = FALSE, direction = -1, na.value = "grey") +
-    theme(axis.title.x = element_blank(),axis.text.x = element_blank(),axis.ticks.x=element_blank(),
-          axis.title.y = element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())+
-    theme(panel.grid.major=element_blank(),panel.grid.minor = element_blank(),
-          panel.background = element_blank(),panel.border = element_blank())+
-    theme(legend.position="none") +
+    ggplot2::theme(
+      plot.title = element_text(hjust = 0.5, size = 24),  # Increase font size here
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.x = element_text(size = 3, angle = 90),
+      axis.text.y = element_text(size = 4)
+    ) +
+    viridis::scale_fill_viridis(discrete = FALSE, direction = -1, na.value = "grey") +
+    theme(
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      legend.position = "none"
+    ) +
     ggplot2::coord_fixed(ratio = 1)  # Fixing the aspect ratio
 }
+
 # Calculate the sparsity of each column for the Original OTU matrix
-sparsity1 <- apply(X_original, 2, function(col) 1 - mean(col > 0))
+sparsity1 <- apply(X, 2, function(col) 1 - mean(col > 0))
 sparsity2 <- apply(X_zinck, 2, function(col) 1 - mean(col > 0))
 
 # Order the matrices by decreasing sparsity
-X_original <- X_original[, order(sparsity1, decreasing = FALSE)]
+X <- X[, order(sparsity1, decreasing = FALSE)]
 X_zinck <- X_zinck[, order(sparsity2, decreasing = FALSE)]
 
-heat1 <- draw.heatmap(X_original, "Original")
+heat1 <- draw.heatmap(X, "Original")
 heat2 <- draw.heatmap(X_zinck, "Knockoff")
 plot_grid(heat1, heat2, ncol = 2, align="v")
 ```
-
 
 It is evident from the above heatmaps that the knockoff copy depicts most of the features corresponding to the original matrix, in terms of zero-inflation and compositionality. This underscores the fact that the knockoff copy preserves the underlying structure of the observed sample taxa count matrix. 
