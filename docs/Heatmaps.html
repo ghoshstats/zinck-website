@@ -11,7 +11,7 @@
 
 <meta name="author" content="Soham Ghosh" />
 
-<meta name="date" content="2024-12-11" />
+<meta name="date" content="2024-12-16" />
 
 <title>Heatmaps</title>
 
@@ -365,7 +365,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Heatmaps</h1>
 <h4 class="author">Soham Ghosh</h4>
-<h4 class="date">2024-12-11</h4>
+<h4 class="date">2024-12-16</h4>
 
 </div>
 
@@ -757,15 +757,20 @@ compositional and highly sparse nature of microbiome count data by
 comparing the heatmaps of the original sample taxa matrix <span
 class="math inline">\(\mathbf{X}\)</span> with its high quality knockoff
 copy, <span class="math inline">\(\tilde{\mathbf{X}}\)</span>.</p>
-<p>The CRC dataset contain 574 subjects (290 CRC cases and 284 controls)
-and 849 gut bacterial species. Our analysis focuses on 401 species with
-an average relative abundance greater than 0.2 across all subjects.
-Then, we consider a toy setting with <span
-class="math inline">\(20\)</span> randomly selected samples and <span
-class="math inline">\(30\)</span> randomly selected CRC taxa at the
-species level. The sample library sizes vary between 17 and 4588, within
-an average library size of 1329. The zero-inflation level in the
-original sample taxa matrix is <span
+<p>The CRC dataset contain <span class="math inline">\(574\)</span>
+subjects (<span class="math inline">\(290\)</span> CRC cases and <span
+class="math inline">\(284\)</span> controls) and <span
+class="math inline">\(849\)</span> gut bacterial species. Our analysis
+focuses on <span class="math inline">\(401\)</span> species with an
+average relative abundance greater than <span
+class="math inline">\(0.2\)</span> across all subjects. Then, we
+consider a toy setting with <span class="math inline">\(20\)</span>
+randomly selected samples and <span class="math inline">\(30\)</span>
+randomly selected CRC taxa at the species level. The sample library
+sizes vary between <span class="math inline">\(17\)</span> and <span
+class="math inline">\(4588\)</span>, within an average library size of
+<span class="math inline">\(1329\)</span>. The zero-inflation level in
+the original sample taxa matrix is <span
 class="math inline">\(0.51\)</span>.</p>
 <pre class="r"><code>
 load(&quot;/Users/Patron/Documents/zinck research/count.RData&quot;) 
