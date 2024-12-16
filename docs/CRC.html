@@ -11,7 +11,7 @@
 
 <meta name="author" content="Soham Ghosh" />
 
-<meta name="date" content="2024-12-11" />
+<meta name="date" content="2024-12-16" />
 
 <title>Colorectal Cancer (CRC) Study</title>
 
@@ -365,7 +365,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Colorectal Cancer (CRC) Study</h1>
 <h4 class="author">Soham Ghosh</h4>
-<h4 class="date">2024-12-11</h4>
+<h4 class="date">2024-12-16</h4>
 
 </div>
 
@@ -394,7 +394,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-12
+<strong>Last updated:</strong> 2024-12-16
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -714,13 +714,13 @@ Add home, experiment, and simulation pages
 </div>
 <div id="crc-data-analysis" class="section level2">
 <h2>CRC Data Analysis</h2>
-<p>We applied Zinck to meta-analyze five metagenomic studies of CRC. The
-five studies correspond to five different countries for the CRC data,
-which are named “AT” (Australia), “US” (USA), “CN” (China), “DE”
-(Germany), and “FR” (France). The sample sizes are 109, 127, 120, 114,
-and 104, respectively, and the number of cases and controls is roughly
-balanced in each study. We focus on all the species whose relative
-abundances are more than 0.2.</p>
+<p>We applied <code>zinck</code> to meta-analyze five metagenomic
+studies of CRC. The five studies correspond to five different countries
+for the CRC data, which are named “AT” (Australia), “US” (USA), “CN”
+(China), “DE” (Germany), and “FR” (France). The sample sizes are 109,
+127, 120, 114, and 104, respectively, and the number of cases and
+controls is roughly balanced in each study. We focus on all the species
+whose relative abundances are more than 0.2.</p>
 <pre class="r"><code>##################### CRC data species level ##########################
 #######################################################################
 norm_count &lt;- count/rowSums(count)
@@ -731,63 +731,37 @@ dcount &lt;- count[,sorted_indices]
 
 X &lt;- dcount
 Y &lt;- ifelse(meta$Group==&quot;CRC&quot;,1,0)</code></pre>
-<p>We train the zinck model on <span class="math inline">\(X\)</span>
-using ADVI with an optimal number of clusters (20). We generate the
-knockoff matrix <span class="math inline">\(\tilde{X}\)</span> by
-plugging in the learnt parameters into the generative model.</p>
-<pre class="r"><code>dlt &lt;- rep(0,ncol(X)) ## Initializing deltas with the individual column sparsities
+<p>We train the <code>zinck</code> model on <span
+class="math inline">\(X\)</span> using ADVI with an optimal number of
+clusters (20). We generate the knockoff matrix <span
+class="math inline">\(\tilde{X}\)</span> by plugging in the learnt
+parameters <span class="math inline">\(\boldsymbol{\beta}\)</span> and
+<span class="math inline">\(\boldsymbol{\theta}\)</span> into the
+generative model.</p>
+<pre class="r"><code>fitCRC &lt;- fit.zinck(X,num_clusters=20,method=&quot;ADVI&quot;,seed=1,boundary_correction = TRUE,prior_ZIGD = TRUE)
+theta &lt;- fitCRC$theta
+beta &lt;- fitCRC$beta
+X_tilde &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy</code></pre>
+<p>We then move on to fit a tuned Random Forest model relating the
+augmented set of covariates with the outcome of interest <span
+class="math inline">\(Y\)</span>. The feature importance score used to
+construct the knockoff feature statistics <span
+class="math inline">\(W\)</span> is the Mean Decrease in Gini
+Impurity.</p>
+<pre class="r"><code>filter_zinck &lt;- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),model=&quot;Random Forest&quot;,offset = 1,seed=1,mtry=28,rftuning=TRUE,metric = &quot;Gini&quot;)
 
-for(t in (1:ncol(X)))
-{
-  dlt[t] &lt;- 1-mean(X[,t]&gt;0)
-  if(dlt[t]==0)
-  {
-    dlt[t] = dlt[t]+0.01
-  }
-  if (dlt[t]==1)
-  {
-    dlt[t] = dlt[t]-0.01
-  }
-  
-}
+selected_species &lt;- filter_zinck$selected
 
-zinLDA_stan_data &lt;- list(
-  K = 20,
-  V = ncol(X),
-  D = nrow(X),
-  n = X,
-  delta = dlt
-)
 
-stan.model = stan_model(model_code = zinck_code)
+## Importance scores ##
+W &lt;- filter_zinck$W
 
-set.seed(1)
-fitCRC &lt;- vb(stan.model, data=zinLDA_stan_data, algorithm=&quot;meanfield&quot;, iter=10000) ## Fitting the zinck model
-
-theta &lt;- fitCRC@sim[[&quot;est&quot;]][[&quot;theta&quot;]]
-beta &lt;- fitCRC@sim[[&quot;est&quot;]][[&quot;beta&quot;]]
-X_tilde_CRC &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy</code></pre>
-<p>We move on to fit a tuned Random Forest model relating the augmented
-set of covariates with the outcome of interest <span
-class="math inline">\(Y\)</span>.</p>
-<pre class="r"><code>X_aug &lt;- cbind(X,X_tilde_CRC) 
-df_X &lt;- as.data.frame(X_aug)
-colnames(df_X) &lt;- NULL
-rownames(df_X) &lt;- NULL
-df_X$Y &lt;- Y
-set.seed(1)
-model_rf &lt;- randomForest(formula=as.factor(Y)~.,ntree=1000,mtry=28,importance=TRUE,data=as.matrix(df_X)) 
-cf &lt;- as.data.frame(importance(model_rf))[,3] ## Extracting the Mean Decrease in Impurities for each variable
-W &lt;- abs(cf[1:401])-abs(cf[402:802])
-T &lt;- knockoff.threshold(W,fdr = 0.1, offset = 1) ## This is the knockoff threshold
-names_zinck &lt;- colnames(X[,which(W&gt;=T)])</code></pre>
+## Threshold ##
+T &lt;- filter_zinck$T</code></pre>
 <p>Finally, we can visualize the importance of these selected species
 using the Feature Statistics obtained by contrasting the Random Forest
 importance scores of the original and the knockoff features.</p>
-<pre class="r"><code>names_zinck &lt;- c(&quot;Ruminococcus torques species (1376)&quot;,&quot;Bacteroides caccae species (1382)&quot;,&quot;Clostridium symbiosum species (1475)&quot;,&quot;Hungatella hathewayi species (0882)&quot;,&quot;Unknown Ruminococcus species (6664)&quot;,&quot;Unknown Clostridiales species (6105)&quot;,  &quot;Parvimonas micra species (1145)&quot;,&quot;Unknown Clostridium species (5413)&quot;,&quot;Gemella morbillorum species (4513)&quot;,&quot;Unknown Clostridiales species (6009)&quot;,&quot;Clostridium clostridioforme species (0979)&quot;, &quot;Peptostreptococcus stomatis species (4614)&quot;,&quot;Solobacterium moorei species (0531)&quot;,&quot;Fusobacterium nucleatum species (0776)&quot;)
-
-
-data.species &lt;- data.frame(             ### Creating the data frame with Feature Importance Statistics
+<pre class="r"><code>data.species &lt;- data.frame(             ### Creating the data frame with Feature Importance Statistics
   impscores = sort(W[which(W&gt;=T)], decreasing=FALSE) , 
   name = factor(names_zinck, levels = names_zinck),
   y = seq(length(names_zinck)) * 0.9
@@ -805,6 +779,8 @@ control_sums &lt;- colMeans(Xnorm[Y == 0, which(W&gt;=T)])
 
 # Determine colors based on the sum comparison
 colors &lt;- ifelse(case_sums &gt; control_sums, &quot;red&quot;, &quot;blue&quot;)</code></pre>
+<p>The plot showing the identified species in order of decreasing
+importance is attached below.</p>
 <pre class="r"><code># Create a data frame for plotting
 data.species &lt;- data.frame(
   impscores = sort(W[which(W &gt;= T)], decreasing = FALSE),
