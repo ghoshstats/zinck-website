@@ -23,7 +23,7 @@ library(cowplot)
 
 We demonstrate the ability of `zinck` to capture the compositional and highly sparse nature of microbiome count data by comparing the heatmaps of the original sample taxa matrix $\mathbf{X}$ with its high quality knockoff copy, $\tilde{\mathbf{X}}$.
 
-The CRC dataset contain 574 subjects (290 CRC cases and 284 controls) and 849 gut bacterial species.  Our analysis focuses on 401 species with an average relative abundance greater than 0.2 across all subjects. Then, we consider a toy setting with $20$ randomly selected samples and $30$ randomly selected CRC taxa at the species level. The sample library sizes vary between 17 and 4588, within an average library size of 1329. The zero-inflation level in the original sample taxa matrix is $0.51$. 
+The CRC dataset contain $574$ subjects ($290$ CRC cases and $284$ controls) and $849$ gut bacterial species.  Our analysis focuses on $401$ species with an average relative abundance greater than $0.2$ across all subjects. Then, we consider a toy setting with $20$ randomly selected samples and $30$ randomly selected CRC taxa at the species level. The sample library sizes vary between $17$ and $4588$, within an average library size of $1329$. The zero-inflation level in the original sample taxa matrix is $0.51$. 
 
 ```{r heatmaps,message=FALSE, warning=FALSE,results='hide'}
 
