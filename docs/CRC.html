@@ -394,7 +394,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-16
+<strong>Last updated:</strong> 2024-12-17
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -564,9 +564,6 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    analysis/.DS_Store
 
-Untracked files:
-    Untracked:  analysis/IBD.html
-
 Unstaged changes:
     Modified:   .gitignore
     Modified:   analysis/CRC.Rmd
@@ -590,7 +587,6 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
 <p>
 These are the previous versions of the repository in which changes were
 made to the R Markdown (<code>analysis/CRC.Rmd</code>) and HTML
@@ -717,10 +713,15 @@ Add home, experiment, and simulation pages
 <p>We applied <code>zinck</code> to meta-analyze five metagenomic
 studies of CRC. The five studies correspond to five different countries
 for the CRC data, which are named “AT” (Australia), “US” (USA), “CN”
-(China), “DE” (Germany), and “FR” (France). The sample sizes are 109,
-127, 120, 114, and 104, respectively, and the number of cases and
-controls is roughly balanced in each study. We focus on all the species
-whose relative abundances are more than 0.2.</p>
+(China), “DE” (Germany), and “FR” (France). The sample sizes are <span
+class="math inline">\(109\)</span>, <span
+class="math inline">\(127\)</span>, <span
+class="math inline">\(120\)</span>, <span
+class="math inline">\(114\)</span>, and <span
+class="math inline">\(104\)</span>, respectively, and the number of
+cases and controls is roughly balanced in each study. We focus on all
+the species whose relative abundances are more than <span
+class="math inline">\(0.2\)</span>.</p>
 <pre class="r"><code>##################### CRC data species level ##########################
 #######################################################################
 norm_count &lt;- count/rowSums(count)
@@ -738,7 +739,9 @@ class="math inline">\(\tilde{X}\)</span> by plugging in the learnt
 parameters <span class="math inline">\(\boldsymbol{\beta}\)</span> and
 <span class="math inline">\(\boldsymbol{\theta}\)</span> into the
 generative model.</p>
-<pre class="r"><code>fitCRC &lt;- fit.zinck(X,num_clusters=20,method=&quot;ADVI&quot;,seed=1,boundary_correction = TRUE,prior_ZIGD = TRUE)
+<pre class="r"><code>fitCRC &lt;- fit.zinck(X,num_clusters=20,method=&quot;ADVI&quot;,seed=1,boundary_correction = TRUE,
+                    elbo_samples = 100,importance_resampling = FALSE,
+                    prior_ZIGD = TRUE)
 theta &lt;- fitCRC$theta
 beta &lt;- fitCRC$beta
 X_tilde &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy</code></pre>
@@ -748,7 +751,9 @@ class="math inline">\(Y\)</span>. The feature importance score used to
 construct the knockoff feature statistics <span
 class="math inline">\(W\)</span> is the Mean Decrease in Gini
 Impurity.</p>
-<pre class="r"><code>filter_zinck &lt;- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),model=&quot;Random Forest&quot;,offset = 1,seed=1,mtry=28,rftuning=TRUE,metric = &quot;Gini&quot;)
+<pre class="r"><code>filter_zinck &lt;- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),
+                model=&quot;Random Forest&quot;,offset = 1,seed=1,mtry=28,
+                rftuning=TRUE,metric = &quot;Gini&quot;)
 
 selected_species &lt;- filter_zinck$selected
 
@@ -761,7 +766,8 @@ T &lt;- filter_zinck$T</code></pre>
 <p>Finally, we can visualize the importance of these selected species
 using the Feature Statistics obtained by contrasting the Random Forest
 importance scores of the original and the knockoff features.</p>
-<pre class="r"><code>data.species &lt;- data.frame(             ### Creating the data frame with Feature Importance Statistics
+<pre class="r"><code>### Creating the data frame with Feature Importance Statistics
+data.species &lt;- data.frame(             
   impscores = sort(W[which(W&gt;=T)], decreasing=FALSE) , 
   name = factor(names_zinck, levels = names_zinck),
   y = seq(length(names_zinck)) * 0.9
@@ -799,7 +805,7 @@ plt.species &lt;- ggplot(data.species) +
     axis.title.x = element_text(size = 22),
     axis.title.y = element_text(size = 22),
     axis.text.x = element_text(size = 18),
-    axis.text.y = element_text(size = 18, face = data.species$fontface) # Adjust fontface based on the condition
+    axis.text.y = element_text(size = 18, face = data.species$fontface)
   )
 print(plt.species)</code></pre>
 <p><img src="figure/CRC.Rmd/imp-ggplots-1.png" width="1152" style="display: block; margin: auto;" /></p>
@@ -891,6 +897,11 @@ loaded via a namespace (and not attached):
 [65] fastmap_1.1.1      utf8_1.2.3         workflowr_1.7.1    rprojroot_2.0.3   
 [69] shape_1.4.6        stringi_1.7.12     parallel_4.1.3     Rcpp_1.0.10       
 [73] vctrs_0.6.5        tidyselect_1.2.0   xfun_0.39         </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
