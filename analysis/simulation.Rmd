@@ -22,71 +22,71 @@ library(topicmodels)
 library(knitr)
 library(kableExtra)
 
-load("/Users/Patron/Documents/zinLDA research/count.Rdata")
-load("/Users/Patron/Documents/zinLDA research/meta.RData")
-zinck_code <- "data {
-  int<lower=1> K; // num topics
-  int<lower=1> V; // num words
-  int<lower=0> D; // num docs
-  int<lower=0> n[D, V]; // word counts for each doc
-
-  // hyperparameters
-  vector<lower=0>[K] alpha;
-  vector<lower=0>[V] gamma1;
-  vector<lower=0>[V] gamma2;
-  vector<lower=0, upper=1>[V] delta;
-}
-parameters {
-  simplex[K] theta[D]; // topic mixtures
-  vector<lower=0,upper=1>[V] zeta[K]; // zero-inflated betas
-}
-
-
-transformed parameters {
-  vector<lower=0>[V] beta[K];
-  for (k in 1:K) {
-	beta[k,1] =  zeta[k,1];
-  for (m in 2:V) {
-    beta[k,m] = zeta[k,m]*prod(1 - zeta[k,1:(m - 1)]);  // stick breaking
-  }
-  }
-  for (k in 1:K) {
-      beta[k]=beta[k]/sum(beta[k,1:V]);  // GD construction
-  }
-}
-
-
-model {
-  for (d in 1:D) {
-    theta[d] ~ dirichlet(alpha);
-  }
-
-  for (k in 1:K) {
-    for (m in 1:V) {
-      if (zeta[k,m]==0){  // Zero-inflated beta likelihood
-        target += bernoulli_lpmf(1 | delta[m]);
-      }else{
-        target += bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k,m] | gamma1[m], gamma2[m]);
-      }
-		}
-  }
-
-  for (d in 1:D) {
-    vector[V] eta;
-    eta = beta[1] * theta[d, 1];
-    for (k in 2:K) {
-      eta = eta + beta[k] * theta[d, k];
-    }
-    eta = eta/sum(eta[1:V]);
-    n[d] ~ multinomial(eta);  // generation of each sample
-  }
-}
-"
+load("/Users/Patron/Documents/zinck research/count.Rdata")
+load("/Users/Patron/Documents/zinck research/meta.RData")
+# zinck_code <- "data {
+#   int<lower=1> K; // num topics
+#   int<lower=1> V; // num words
+#   int<lower=0> D; // num docs
+#   int<lower=0> n[D, V]; // word counts for each doc
+# 
+#   // hyperparameters
+#   vector<lower=0>[K] alpha;
+#   vector<lower=0>[V] gamma1;
+#   vector<lower=0>[V] gamma2;
+#   vector<lower=0, upper=1>[V] delta;
+# }
+# parameters {
+#   simplex[K] theta[D]; // topic mixtures
+#   vector<lower=0,upper=1>[V] zeta[K]; // zero-inflated betas
+# }
+# 
+# 
+# transformed parameters {
+#   vector<lower=0>[V] beta[K];
+#   for (k in 1:K) {
+# 	beta[k,1] =  zeta[k,1];
+#   for (m in 2:V) {
+#     beta[k,m] = zeta[k,m]*prod(1 - zeta[k,1:(m - 1)]);  // stick breaking
+#   }
+#   }
+#   for (k in 1:K) {
+#       beta[k]=beta[k]/sum(beta[k,1:V]);  // GD construction
+#   }
+# }
+# 
+# 
+# model {
+#   for (d in 1:D) {
+#     theta[d] ~ dirichlet(alpha);
+#   }
+# 
+#   for (k in 1:K) {
+#     for (m in 1:V) {
+#       if (zeta[k,m]==0){  // Zero-inflated beta likelihood
+#         target += bernoulli_lpmf(1 | delta[m]);
+#       }else{
+#         target += bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k,m] | gamma1[m], gamma2[m]);
+#       }
+# 		}
+#   }
+# 
+#   for (d in 1:D) {
+#     vector[V] eta;
+#     eta = beta[1] * theta[d, 1];
+#     for (k in 2:K) {
+#       eta = eta + beta[k] * theta[d, k];
+#     }
+#     eta = eta/sum(eta[1:V]);
+#     n[d] ~ multinomial(eta);  // generation of each sample
+#   }
+# }
+# "
 
 ```
 
 
-We take the colon cancer (CRC) dataset which encompasses five distinct studies each originating from different countries. We calculated the average proportions of species across all 574 samples from five metagenomic studies and retained the top $p = 100$ most abundant species. Then, we randomly sampled $D = 500$ samples from the cohort of 574 observations and normalized their raw OTU counts row-wise, ensuring each row sums to 1. To avoid zero probabilities during multinomial sampling, a small constant (0.5) was added to the raw OTU counts before normalization.
+We take the colon cancer (CRC) dataset which encompasses five distinct studies each originating from different countries. We calculated the average proportions of species across all $574$ samples from five metagenomic studies and retained the top $p = 100$ most abundant species. Then, we randomly sampled $D = 500$ samples from the cohort of $574$ observations and normalized their raw OTU counts row-wise, ensuring each row sums to $1$. To avoid zero probabilities during multinomial sampling, a small constant ($0.5$) was added to the raw OTU counts before normalization.
 
 Next, we paired the calculated true proportions $\Pi$ with sequencing depths resampled from the original dataset. Each sequencing depth was independently resampled and paired with a proportion vector from a different subject. Using these paired proportions and sequencing depths, we generated the taxa count matrix $\mathbf{X}^{D \times p}$ via multinomial sampling. For each sample $d = 1, 2, \ldots, 500$, the count vector corresponding to the $d^{\text{th}}$ row of $\mathbf{X}$ was generated as:
 $$
@@ -175,30 +175,13 @@ On extracting the sample taxa count matrix $X$ and continuous outcomes $Y_1$, we
 
 ```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 
-stan.model = stan_model(model_code = zinck_code)  ## Reading the stan model
-dlt <- rep(0,ncol(X)) ## Initializing the deltas with the sparsity of each column
 
-for(t in (1:ncol(X)))
-{
-  dlt[t] <- 1-mean(X[,t]>0)
-}
-
-zinLDA_stan_data <- list(
-  K = 15,
-  V = ncol(X),
-  D = nrow(X),
-  n = X,
-  alpha = rep(0.1, 15),
-  gamma1 = rep(0.5, ncol(X)),
-  gamma2 = rep(10,ncol(X)),
-  delta = dlt
-)
-
-set.seed(12) ## Set seeds carefully since vb is sensitive to starting points. If there is an error for iteration i switch to seed = 11 ##
-fit <- vb(stan.model, data=zinLDA_stan_data, algorithm="meanfield", iter=10000)
-theta <- fit@sim[["est"]][["theta"]]
-beta <- fit@sim[["est"]][["beta"]]
+fit <- fit.zinck(X,num_clusters = 15,method="ADVI",seed=12,elbo_samples = 100)
+theta <- fit$theta
+beta <- fit$beta
 X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## getting the knockoff copy
+
+
 ```
 
 Now that we have generated the knockoff copy, we will fit a model associating the response $Y_1$  with the augmented set of covariates $[X,\tilde{X}]^{D \times 2p}$. We fit a Random Forest model and compute the importance statistics for each feature. Then, we detect the non-zero features for the FDR threshold of $0.2$. Then, we compute the Power (True Positive Rate) and the empirical FDR by comparing the selected set of taxa with the true set of taxa indexed from $1,\dots,30$.
@@ -207,7 +190,7 @@ Now that we have generated the knockoff copy, we will fit a model associating th
 index <- 1:30
 ################### Continuous Outcomes #########################
 ############## Target FDR = 0.2 ###############
-cts_rf <- suppressWarnings(zinck.filter(X,X_tilde,Y1,model="Random Forest",fdr=0.2,offset=0,mtry=200,seed=12,rftuning = TRUE))
+cts_rf <- suppressWarnings(zinck.filter(X,X_tilde,Y1,model="Random Forest",fdr=0.2,offset=0,mtry=200,seed=12,metric = "Accuracy", rftuning = TRUE))
 index_est <- cts_rf[["selected"]]
 
 ### Evaluation metrics ###
@@ -230,7 +213,7 @@ Y2 <- generate_data(p=ntaxa, seed=1)$Y_bin
 index <- 1:30
 ################### Binary Outcomes #########################
 ############## Target FDR = 0.2 ###############
-bin_rf <- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,mtry=14,seed=15,rftuning = TRUE))
+bin_rf <- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,mtry=14,seed=15,metric="Accuracy",rftuning = TRUE))
 index_est <- bin_rf[["selected"]]
 
 ### Evaluation metrics ###
@@ -254,12 +237,7 @@ We now compare the performance of `zinck` with two standard knockoff filters nam
 set.seed(1)
 Xlog = log_normalize(X)
 Xlog_tilde = create.second_order(Xlog)
-
-set.seed(3)
-imp <- stat.random_forest(Xlog,Xlog_tilde,Y1)
-T <- knockoff.threshold(imp,fdr=0.2)
-
-index_est <- which(imp >=T)
+index_est <- zinck.filter(Xlog,Xlog_tilde,Y1,model="Random Forest",fdr=0.2,seed=3)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -269,15 +247,12 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_cts <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_cts <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-paste("MX-KF (continuous) metrics:")
-print(paste("Estimated FDR for Target 0.2:", estimated_FDR_KF_cts))
-print(paste("Estimated Power for Target 0.2:", estimated_power_KF_cts))
+cat("LDA-KF (Continuous) metrics\n")
+cat("Estimated FDR for Target 0.2:", estimated_FDR_KF_cts, "\n")
+cat("Estimated Power for Target 0.2:", estimated_power_KF_cts, "\n")
 
 ############### Binary Outcomes (MX-KF) ###################
-set.seed(21)
-imp <- stat.random_forest(Xlog,Xlog_tilde,as.factor(Y2))
-T <- knockoff.threshold(imp,fdr=0.2)
-index_est <- which(imp >=T)
+index_est <- zinck.filter(Xlog,Xlog_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,seed=21)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -287,9 +262,9 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_bin <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_bin <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-paste("MX-KF (Binary) metrics:")
-print(paste("Estimated FDR for Target 0.2:", estimated_FDR_KF_bin))
-print(paste("Estimated Power for Target 0.2:", estimated_power_KF_bin))
+cat("LDA-KF (Binary) metrics\n")
+cat("Estimated FDR for Target 0.2:", estimated_FDR_KF_bin, "\n")
+cat("Estimated Power for Target 0.2:", estimated_power_KF_bin, "\n")
 
 ################ Continuous Outcomes (LDA-KF) ##################
 df.LDA = as(as.matrix(X),"dgCMatrix")
@@ -300,10 +275,7 @@ beta.LDA <- vanilla.LDA@beta
 beta.LDA <- t(apply(beta.LDA,1,function(row) row/sum(row)))
 X_tilde.LDA <- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
-set.seed(34)
-imp <- stat.random_forest(X,X_tilde.LDA,Y1)
-T <- knockoff.threshold(imp,fdr=0.2,offset=0)
-index_est <- which(imp>=T)
+index_est <- zinck.filter(X,X_tilde.LDA,Y1,model="Random Forest",fdr=0.2,offset=0,seed=34)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -313,16 +285,14 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_LDA_cts <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_LDA_cts <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-paste("LDA-KF (continuous) metrics:")
-print(paste("Estimated FDR for Target 0.2:", estimated_FDR_LDA_cts))
-print(paste("Estimated Power for Target 0.2:", estimated_power_LDA_cts))
+cat("LDA-KF (Continuous) metrics\n")
+cat("Estimated FDR for Target 0.2:", estimated_FDR_LDA_cts, "\n")
+cat("Estimated Power for Target 0.2:", estimated_power_LDA_cts, "\n")
+
 
 ############### Binary Outcomes (LDA-KF) ###################
 
-set.seed(34)
-imp <- stat.random_forest(X,X_tilde.LDA,as.factor(Y2))
-T <- knockoff.threshold(imp,fdr=0.2,offset=0)
-index_est <- which(imp >=T)
+index_est <- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,seed=34)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -332,9 +302,9 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_LDA_bin <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_LDA_bin <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-paste("LDA-KF (Binary) metrics:")
-print(paste("Estimated FDR for Target 0.2:", estimated_FDR_LDA_bin))
-print(paste("Estimated Power for Target 0.2:", estimated_power_LDA_bin))
+cat("LDA-KF (Binary) metrics\n")
+cat("Estimated FDR for Target 0.2:", estimated_FDR_LDA_bin, "\n")
+cat("Estimated Power for Target 0.2:", estimated_power_LDA_bin, "\n")
 
 ```
 
@@ -354,4 +324,4 @@ kable(results, format = "html", caption = "Power and Empirical FDR Summary") %>%
 
 ```
 
-
+This shows that ``zinck`` has decent power and controlled FDR for both binary and continuous outcome scenarios compared to the other knockoff filters.

@@ -1,15 +1,16 @@
 ---
 title: "Inflammatory Bowel Disease (IBD) Study"
 author: "Soham Ghosh"
-date: "2024-06-18"
+date: "2024-12-16"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
 ---
-
 ## IBD Data Analysis 
 
-```{r defn, echo=FALSE}
+Out of the ten uniformly processed 16S rRNA gene sequencing studies of the IBD mucosal/stool microbiome (https://github.com/biobakery/ibd_paper/tree/paper_publication), we focus on five studies -- RISK ($430$ cases, $201$ controls), CS PRISM ($359$ cases, $38$ controls), HMP2 ($59$ cases, $22$ controls), Pouchitis ($308$ cases, $45$ controls), and Mucosal IBD ($36$ cases, $47$ controls). Here cases indicate patients with Ulcerative Colitis (UC) or Crohn’s Disease (CD). We included all $249$ IBD genera in our analyses.
+
+```{r defn, echo=FALSE,message=FALSE, warning=FALSE, results='hide'}
 library(zinck)
 library(reshape2)
 library(knockoff)
@@ -17,22 +18,87 @@ library(ggplot2)
 library(rstan)
 library(phyloseq)
 library(kosel)
-zinck.threshold <- function(W, fdr) {
-  msel <- ko.sel(W, print = FALSE, method = "gaps")
-  T = (1 - fdr) * msel$threshold
-  return(T)
-}
+
+names_zinck <- c("Bilophila genus (f. Desulfovibrionaceae)","Unknown genus (f. Ruminococcaceae)","Holdemania genus (f. Erysipelotrichaceae)","Parabacteroides genus (f. Porphyromonadaceae)","Unknown genus (f. Rikenellaceae)", "Bacteroides genus (f. Bacteroidaceae)","Oscillospira genus (f. Ruminococcaceae)","Phascolarctobacterium genus (f. Veillonellaceae)","Coprococcus genus (f. Lachnospiraceae)","Blautia genus (f. Lachnospiraceae)", "Lachnospira genus (f. Lachnospiraceae)","Faecalibacterium genus (f. Ruminococcaceae)")
+
+
+# zinck_code <- "data {
+#   int<lower=1> K; // num topics
+#   int<lower=1> V; // num words
+#   int<lower=0> D; // num docs
+#   int<lower=0> n[D, V]; // word counts for each doc
+# 
+#   // hyperparameters
+#   vector<lower=0, upper=1>[V] delta;
+# }
+# 
+# parameters {
+#   simplex[K] theta[D]; // topic mixtures
+#   vector<lower=0, upper=1>[V] zeta[K]; // zero-inflated betas
+#   vector<lower=0>[V] gamma1[K];
+#   vector<lower=0>[V] gamma2[K];
+#   vector<lower=0>[K] alpha;
+# }
+# 
+# transformed parameters {
+#   vector[V] beta[K];
+# 
+#   // Efficiently compute beta using vectorized operations
+#   for (k in 1:K) {
+#     vector[V] cum_log1m;
+#     cum_log1m[1:(V - 1)] = cumulative_sum(log1m(zeta[k, 1:(V - 1)]));
+#     cum_log1m[V] = 0;
+#     beta[k] = zeta[k] .* exp(cum_log1m);
+#     beta[k] = beta[k] / sum(beta[k]);
+#   }
+# }
+# 
+# 
+# model {
+#   for (k in 1:K) {
+#     alpha[k] ~ gamma(100,100);  // Change these hyperparameters as needed
+#   }
+#   for (d in 1:D) {
+#     theta[d] ~ dirichlet(alpha);
+#   }
+#   for (k in 1:K) {
+#     for (m in 1:V) {
+#         gamma1[k,m] ~ gamma(1,1);
+#         gamma2[k,m] ~ gamma(1,1);
+#     }
+#   }
+# 
+#   // Zero-inflated beta likelihood and data likelihood
+#   for (k in 1:K) {
+#     for (m in 1:V) {
+#       real lp_non_zero = bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k, m] | gamma1[k, m], gamma2[k, m]);
+#       real lp_zero = bernoulli_lpmf(1 | delta[m]);
+#       target += log_sum_exp(lp_non_zero, lp_zero);
+#     }
+#   }
+# 
+#   // Compute the eta values and data likelihood more efficiently
+#   for (d in 1:D) {
+#     vector[V] eta = theta[d, 1] * beta[1];
+#     for (k in 2:K) {
+#       eta += theta[d, k] * beta[k];
+#     }
+#     eta = eta / sum(eta);
+#     n[d] ~ multinomial(eta);
+#   }
+# }
+# "
+
 ```
 
 
-Out of the ten uniformly processed 16S rRNA gene sequencing studies of the IBD mucosal/stool microbiome (https://github.com/biobakery/ibd_paper/tree/paper_publication), we focus on five studies -- RISK (430 cases, 201 controls), CS PRISM (359 cases, 38 controls), HMP2 (59 cases, 22 controls), Pouchitis (308 cases, 45 controls), and Mucosal IBD (36 cases, 47 controls). Here cases indicate patients with Ulcerative Colitis (UC) or Crohn’s Disease (CD). We included all $249$ IBD genera in our analyses.
 
 ```{r IBD-data}
 
-################################################################################
-###################### IBD data genus level ####################################
+############################################################################################
+################################## IBD data genus level ####################################
 
-load("/Users/Patron/Documents/zinLDA research/genera.RData") ## Loading the meta IBD studies
+load("/Users/Patron/Documents/zinck research/genera.RData") ## Loading the meta IBD studies
 combined_studies <- as.data.frame(t(physeq_genera@otu_table))
 study_names <- physeq_genera@sam_data[["dataset_name"]]
 
@@ -95,125 +161,34 @@ X <- combined_otu
 
 ```
 
-We train the zinck model on $X$ with the optimal number of clusters (27), and use the posterior estimates of the latent parameters to generate the knockoff matrix.
+We train the `zinck` model on $X$ with the optimal number of clusters ($27$), and use the posterior estimates of the latent parameters to generate the knockoff matrix.
 
 ```{r zinck-IBD, message=FALSE, warning=FALSE, results='hide'}
-zinck_code <- "data {
-  int<lower=1> K; // num topics
-  int<lower=1> V; // num words
-  int<lower=0> D; // num docs
-  int<lower=0> n[D, V]; // word counts for each doc
 
-  // hyperparameters
-  vector<lower=0, upper=1>[V] delta;
-}
-
-parameters {
-  simplex[K] theta[D]; // topic mixtures
-  vector<lower=0, upper=1>[V] zeta[K]; // zero-inflated betas
-  vector<lower=0>[V] gamma1[K];
-  vector<lower=0>[V] gamma2[K];
-  vector<lower=0>[K] alpha;
-}
-
-transformed parameters {
-  vector[V] beta[K];
-
-  // Efficiently compute beta using vectorized operations
-  for (k in 1:K) {
-    vector[V] cum_log1m;
-    cum_log1m[1:(V - 1)] = cumulative_sum(log1m(zeta[k, 1:(V - 1)]));
-    cum_log1m[V] = 0;
-    beta[k] = zeta[k] .* exp(cum_log1m);
-    beta[k] = beta[k] / sum(beta[k]);
-  }
-}
-
-
-model {
-  for (k in 1:K) {
-    alpha[k] ~ gamma(100,100);  // Change these hyperparameters as needed
-  }
-  for (d in 1:D) {
-    theta[d] ~ dirichlet(alpha);
-  }
-  for (k in 1:K) {
-    for (m in 1:V) {
-        gamma1[k,m] ~ gamma(1,1);
-        gamma2[k,m] ~ gamma(1,1);
-    }
-  }
-
-  // Zero-inflated beta likelihood and data likelihood
-  for (k in 1:K) {
-    for (m in 1:V) {
-      real lp_non_zero = bernoulli_lpmf(0 | delta[m]) + beta_lpdf(zeta[k, m] | gamma1[k, m], gamma2[k, m]);
-      real lp_zero = bernoulli_lpmf(1 | delta[m]);
-      target += log_sum_exp(lp_non_zero, lp_zero);
-    }
-  }
-
-  // Compute the eta values and data likelihood more efficiently
-  for (d in 1:D) {
-    vector[V] eta = theta[d, 1] * beta[1];
-    for (k in 2:K) {
-      eta += theta[d, k] * beta[k];
-    }
-    eta = eta / sum(eta);
-    n[d] ~ multinomial(eta);
-  }
-}
-"
-
-stan.model = stan_model(model_code = zinck_code)
-
-
-dlt <- rep(0,ncol(X)) ## Initializing the deltas with the sparsity of each column
-
-for(t in (1:ncol(X)))
-{
-  dlt[t] <- 1-mean(X[,t]>0)
-  if(dlt[t]==0)
-  {
-    dlt[t] = dlt[t]+0.01
-  }
-  if (dlt[t]==1)
-  {
-    dlt[t] = dlt[t]-0.01
-  }
-  
-}
-
-zinLDA_stan_data <- list(
-  K = 27,
-  V = ncol(X),
-  D = nrow(X),
-  n = X,
-  delta = dlt
-)
-
-## Fitting the zinck model ##
-set.seed(1)
-fitIBD <- vb(stan.model, data=zinLDA_stan_data, algorithm="meanfield", importance_resampling=TRUE, iter=10000,tol_rel_obj=0.01,elbo_samples=500)
-
-theta <- fitIBD@sim[["est"]][["theta"]]
-beta <- fitIBD@sim[["est"]][["beta"]]
-X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the kncokoff copy
-
+fitIBD <- fit.zinck(as.matrix(X),num_clusters=27,method="ADVI",seed=1,
+                    importance_resampling = TRUE,elbo_samples = 500,
+                    boundary_correction = TRUE,prior_ZIGD = TRUE)
+theta <- fitIBD$theta
+beta <- fitIBD$beta
+X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy
 
 ```
 
 Fitting the Random Forest model associating the augmented set of covariates with the outcome of interest, we extract the Feature Importance scores. 
 
-```{r imp-scores, fig.width=10, fig.height=8}
+```{r imp-scores, fig.width=12, fig.height=8}
 
-set.seed(2)
-W <- stat.random_forest(X,X_tilde,as.factor(Y))
-T <- zinck.threshold(W,fdr=0.1)
-names_zinck <- colnames(X[,which(W>=T)])
+filter_zinck <- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),
+                             model="Random Forest",offset=0,seed=312)
 
-names_zinck <- c("Bilophila genus (f. Desulfovibrionaceae)","Unknown genus (f. Ruminococcaceae)","Holdemania genus (f. Erysipelotrichaceae)","Parabacteroides genus (f. Porphyromonadaceae)","Unknown genus (f. Rikenellaceae)", "Bacteroides genus (f. Bacteroidaceae)","Oscillospira genus (f. Ruminococcaceae)","Phascolarctobacterium genus (f. Veillonellaceae)","Coprococcus genus (f. Lachnospiraceae)","Blautia genus (f. Lachnospiraceae)", "Lachnospira genus (f. Lachnospiraceae)","Faecalibacterium genus (f. Ruminococcaceae)")
+selected_genera <- filter_zinck$selected
 
+
+## Importance scores ##
+W <- filter_zinck$W
+
+## Threshold ##
+T <- filter_zinck$T
 
 Xnorm <- X / rowSums(X)
 
@@ -244,10 +219,11 @@ plt.genus <- ggplot(data.genus) +
     axis.title.x = element_text(size = 22),
     axis.title.y = element_text(size = 22),
     axis.text.x = element_text(size = 18),
-    axis.text.y = element_text(size = 18) # Adjust fontface based on the condition
+    axis.text.y = element_text(size = 18) 
   )
 print(plt.genus)
 
 
 ```
 
+Note that the red coloured bars indicate positive marginal association between microbial relative abundance and the odds of IBD, while blue indicate  negative marginal association.

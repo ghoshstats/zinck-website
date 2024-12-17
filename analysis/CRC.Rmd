@@ -92,7 +92,7 @@ names_zinck <- c("Ruminococcus torques species (1376)","Bacteroides caccae speci
 
 ```
 
-We applied ``zinck`` to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are 109, 127, 120, 114, and 104, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than 0.2.
+We applied ``zinck`` to meta-analyze five metagenomic studies of CRC. The five studies correspond to five different countries for the CRC data, which are named "AT" (Australia), "US" (USA), "CN" (China), "DE" (Germany), and "FR" (France).  The sample sizes are $109$, $127$, $120$, $114$, and $104$, respectively, and the number of cases and controls is roughly balanced in each study. We focus on all the species whose relative abundances are more than $0.2$.
 
 ```{r CRC-data}
 ##################### CRC data species level ##########################
@@ -111,7 +111,9 @@ We train the ``zinck`` model on $X$ using ADVI with an optimal number of cluster
 
 ```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 
-fitCRC <- fit.zinck(X,num_clusters=20,method="ADVI",seed=1,boundary_correction = TRUE,prior_ZIGD = TRUE)
+fitCRC <- fit.zinck(X,num_clusters=20,method="ADVI",seed=1,boundary_correction = TRUE,
+                    elbo_samples = 100,importance_resampling = FALSE,
+                    prior_ZIGD = TRUE)
 theta <- fitCRC$theta
 beta <- fitCRC$beta
 X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knockoff copy
@@ -121,7 +123,9 @@ X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## Generating the knocko
 We then move on to fit a tuned Random Forest model relating the augmented set of covariates with the outcome of interest $Y$. The feature importance score used to construct the knockoff feature statistics $W$ is the Mean Decrease in Gini Impurity.
 
 ```{r rf-model}
-filter_zinck <- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),model="Random Forest",offset = 1,seed=1,mtry=28,rftuning=TRUE,metric = "Gini")
+filter_zinck <- zinck.filter(as.matrix(X),as.matrix(X_tilde),as.factor(Y),
+                model="Random Forest",offset = 1,seed=1,mtry=28,
+                rftuning=TRUE,metric = "Gini")
 
 selected_species <- filter_zinck$selected
 
@@ -136,8 +140,8 @@ T <- filter_zinck$T
 Finally, we can visualize the importance of these selected species using the Feature Statistics obtained by contrasting the Random Forest importance scores of the original and the knockoff features. 
 
 ```{r imp-plots}
-
-data.species <- data.frame(             ### Creating the data frame with Feature Importance Statistics
+### Creating the data frame with Feature Importance Statistics
+data.species <- data.frame(             
   impscores = sort(W[which(W>=T)], decreasing=FALSE) , 
   name = factor(names_zinck, levels = names_zinck),
   y = seq(length(names_zinck)) * 0.9
@@ -178,7 +182,7 @@ plt.species <- ggplot(data.species) +
     axis.title.x = element_text(size = 22),
     axis.title.y = element_text(size = 22),
     axis.text.x = element_text(size = 18),
-    axis.text.y = element_text(size = 18, face = data.species$fontface) # Adjust fontface based on the condition
+    axis.text.y = element_text(size = 18, face = data.species$fontface)
   )
 print(plt.species)
 
