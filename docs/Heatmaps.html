@@ -394,7 +394,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-16
+<strong>Last updated:</strong> 2024-12-18
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -564,9 +564,6 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    analysis/.DS_Store
 
-Untracked files:
-    Untracked:  analysis/IBD.html
-
 Unstaged changes:
     Modified:   .gitignore
     Modified:   analysis/CRC.Rmd
@@ -590,7 +587,6 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
 <p>
 These are the previous versions of the repository in which changes were
 made to the R Markdown (<code>analysis/Heatmaps.Rmd</code>) and HTML
@@ -841,8 +837,8 @@ sparsity2 &lt;- apply(X_zinck, 2, function(col) 1 - mean(col &gt; 0))
 X &lt;- X[, order(sparsity1, decreasing = FALSE)]
 X_zinck &lt;- X_zinck[, order(sparsity2, decreasing = FALSE)]
 
-heat1 &lt;- draw.heatmap(X, &quot;Original&quot;)
-heat2 &lt;- draw.heatmap(X_zinck, &quot;Knockoff&quot;)
+heat1 &lt;- draw.heatmap(X, &quot;Original taxon count matrix&quot;)
+heat2 &lt;- draw.heatmap(X_zinck, &quot;Zinck knockoff copy&quot;)
 plot_grid(heat1, heat2, ncol = 2, align=&quot;v&quot;)</code></pre>
 <p><img src="figure/Heatmaps.Rmd/heatmap-comparison-1.png" width="1440" style="display: block; margin: auto;" /></p>
 <p>
@@ -964,6 +960,11 @@ loaded via a namespace (and not attached):
 [67] rprojroot_2.0.3      shape_1.4.6          stringi_1.7.12      
 [70] parallel_4.1.3       Rcpp_1.0.10          vctrs_0.6.5         
 [73] tidyselect_1.2.0     xfun_0.39           </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
