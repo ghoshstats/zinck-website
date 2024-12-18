@@ -96,8 +96,8 @@ sparsity2 <- apply(X_zinck, 2, function(col) 1 - mean(col > 0))
 X <- X[, order(sparsity1, decreasing = FALSE)]
 X_zinck <- X_zinck[, order(sparsity2, decreasing = FALSE)]
 
-heat1 <- draw.heatmap(X, "Original")
-heat2 <- draw.heatmap(X_zinck, "Knockoff")
+heat1 <- draw.heatmap(X, "Original taxon count matrix")
+heat2 <- draw.heatmap(X_zinck, "Zinck knockoff copy")
 plot_grid(heat1, heat2, ncol = 2, align="v")
 ```
 
