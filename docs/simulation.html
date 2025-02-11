@@ -396,7 +396,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-16
+<strong>Last updated:</strong> 2025-02-11
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -589,7 +589,6 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
 <p>
 These are the previous versions of the repository in which changes were
 made to the R Markdown (<code>analysis/simulation.Rmd</code>) and HTML
@@ -721,7 +720,7 @@ thresholds</h2>
 distinct studies each originating from different countries. We
 calculated the average proportions of species across all <span
 class="math inline">\(574\)</span> samples from five metagenomic studies
-and retained the top <span class="math inline">\(p = 100\)</span> most
+and retained the top <span class="math inline">\(p = 200\)</span> most
 abundant species. Then, we randomly sampled <span
 class="math inline">\(D = 500\)</span> samples from the cohort of <span
 class="math inline">\(574\)</span> observations and normalized their raw
@@ -747,23 +746,24 @@ sequencing depth for sample <span class="math inline">\(d\)</span>, and
 <span class="math inline">\(\Pi_d\)</span> is the vector of true
 proportions for sample <span class="math inline">\(d\)</span> with <span
 class="math inline">\(\Pi_{dj}\)</span> (j = 1…p) as its element.</p>
-<p>Given the simulated count, among the <span
-class="math inline">\(p=100\)</span> taxa, the first <span
-class="math inline">\(30\)</span> were assumed to be associated with the
-outcome, while the remaining <span class="math inline">\(70\)</span>
-taxa had no effect. To simulate outcomes reflecting realistic microbiome
-data, signal strengths <span class="math inline">\(s\)</span> for the
-top <span class="math inline">\(30\)</span> bio-markers were defined as:
-<span class="math display">\[
+<p>Given the simulated count, among the first <span
+class="math inline">\(200\)</span> taxa, <span
+class="math inline">\(30\)</span> were randomly assumed to be associated
+with the outcome, while the remaining <span
+class="math inline">\(p-30\)</span> taxa had no effect. To simulate
+outcomes reflecting realistic microbiome data, signal strengths <span
+class="math inline">\(\bm{s}\)</span> for the associated <span
+class="math inline">\(30\)</span> biomarkers were defined as: <span
+class="math display">\[
 s_j \overset{d}{=}  
 \begin{cases}
     (2Z_j - 1) \frac{U_1}{\sqrt{C_j}}, &amp; \text{for continuous
 outcomes}, \\
     (2Z_j - 1) \frac{U_2}{\sqrt{C_j}}, &amp; \text{for binary outcomes},
 \end{cases}
-\]</span> where <span class="math inline">\(U_1 \sim \text{Uniform}(1.5,
-3)\)</span> and <span class="math inline">\(U_2 \sim \text{Uniform}(3,
-10)\)</span> represent the signal magnitudes, <span
+\]</span> where <span class="math inline">\(U_1 \sim \text{Uniform}(6,
+12)\)</span> and <span class="math inline">\(U_2 \sim \text{Uniform}(30,
+50)\)</span> represent the signal magnitudes, <span
 class="math inline">\(Z_j \sim \text{Bernoulli}(0.5)\)</span> determines
 the sign of <span class="math inline">\(s_j\)</span> (<span
 class="math inline">\(+1\)</span> or <span
@@ -780,57 +780,65 @@ class="math display">\[
 link for continuous outcomes and the logit link for binary outcomes. We
 replicate a single iteration of this setting for both continuous and
 binary outcomes.</p>
-<pre class="r"><code>generate_data &lt;- function(p,seed){
-  dcount &lt;- count[,order(decreasing=T,colSums(count,na.rm=T),apply(count,2L,paste,collapse=&#39;&#39;))] ## ordering the columns w/ decreasing abundance
-  ####### Randomly sampling patients from 574 observations #######
+<pre class="r"><code>generate_data &lt;- function(p, seed) {
+  dcount &lt;- count[, order(decreasing = TRUE, colSums(count, na.rm = TRUE), apply(count, 2L, paste, collapse = &#39;&#39;))] # Ordering the columns with decreasing abundance
+  
+  # Randomly sampling patients from 574 observations
   set.seed(seed)
-  norm_count &lt;- count/rowSums(count)
+  norm_count &lt;- count / rowSums(count)
   col_means &lt;- colMeans(norm_count &gt; 0)
   indices &lt;- which(col_means &gt; 0.2)
-  sorted_indices &lt;- indices[order(col_means[indices], decreasing=TRUE)]
-  if(p %in% c(100,200,300,400)){
-    dcount &lt;- count[,sorted_indices][,1:p]
+  sorted_indices &lt;- indices[order(col_means[indices], decreasing = TRUE)]
+  
+  if (p %in% c(200, 300, 400)) {
+    dcount &lt;- count[, sorted_indices][, 1:p]
     sel_index &lt;- sort(sample(1:nrow(dcount), 500))
-    dcount &lt;- dcount[sel_index,]
+    dcount &lt;- dcount[sel_index, ]
     original_OTU &lt;- dcount + 0.5
     seq_depths &lt;- rowSums(original_OTU)
-    Pi = sweep(original_OTU, 1, seq_depths, &quot;/&quot;)
-    n = nrow(Pi)
+    Pi &lt;- sweep(original_OTU, 1, seq_depths, &quot;/&quot;)
+    n &lt;- nrow(Pi)
     
-    col_abundances = colMeans(Pi)
+    col_abundances &lt;- colMeans(Pi)
     
     ##### Generating continuous responses ######
     set.seed(1)
-    signals = (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 1.5, 3)
-    kBeta = c(signals / sqrt(col_abundances[1:30]), rep(0, p - 30))
-    eps=rnorm(n,mean = 0, sd=1)
-    Y &lt;- Pi^2 %*% (kBeta/2) + Pi %*% kBeta + eps
+    signal_indices &lt;- sample(1:min(p, 200), 30, replace = FALSE) # Randomly selecting 30 indices for signal injection
+    signals &lt;- (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 6, 12)
+    kBeta &lt;- numeric(p)
+    kBeta[signal_indices] &lt;- signals / sqrt(col_abundances[signal_indices])
+    
+    eps &lt;- rnorm(n, mean = 0, sd = 1)
+    Y &lt;- Pi^2 %*% (kBeta / 2) + Pi %*% kBeta + eps
     
     ##### Generating binary responses #####
     set.seed(1)
-    signals = (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 3, 10)
-    kBeta = c(signals / sqrt(col_abundances[1:30]), rep(0, p - 30))
-    pr = 1/(1+exp(-(Pi^2 %*% (kBeta/2) + Pi %*% kBeta)))
-    Y_bin = rbinom(n,1,pr)
+    signals &lt;- (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 30, 50)
+    kBeta[signal_indices] &lt;- signals / sqrt(col_abundances[signal_indices])
+    
+    pr &lt;- 1 / (1 + exp(-(Pi^2 %*% (kBeta / 2) + Pi %*% kBeta)))
+    Y_bin &lt;- rbinom(n, 1, pr)
     
     ######### Generate a copy of X #########
     X &lt;- matrix(0, nrow = nrow(Pi), ncol = ncol(Pi))
     nSeq &lt;- seq_depths
+    
     # Loop over each row to generate the new counts based on the multinomial distribution
-    
     set.seed(1)
-    
     for (i in 1:nrow(Pi)) {
-      X[i, ] &lt;- rmultinom(1, size = nSeq, prob = Pi[i, ])
-    }  
-  } else if (p %in% c(200,300,400)) {
-    print(&quot;Enter p within 100 to 400&quot;)
+      X[i, ] &lt;- rmultinom(1, size = nSeq[i], prob = Pi[i, ])
+    }
+    
+  } else {
+    print(&quot;Enter p within 200 to 400&quot;)
   }
+  
   colnames(X) &lt;- colnames(Pi)
-  return(list(Y = Y, X = X, Y_bin = Y_bin, index = 1:30))
+  return(list(Y = Y, X = X, Y_bin = Y_bin, signal_indices = signal_indices))
 }
 
-ntaxa = 100 # Change to p = 200, 300, 400 accordingly.
+
+ntaxa = 200 # Change to p = 200, 300, 400 accordingly.
 
 X &lt;- generate_data(p=ntaxa, seed=1)$X
 Y1 &lt;- generate_data(p=ntaxa, seed=1)$Y</code></pre>
@@ -840,7 +848,8 @@ class="math inline">\(Y_1\)</span>, we train the zinck model using ADVI.
 Plugging in the learnt parameters into the generative framework of
 <code>zinck</code>, we generate the knockoff matrix <span
 class="math inline">\(\tilde{X}\)</span>.</p>
-<pre class="r"><code>fit &lt;- fit.zinck(X,num_clusters = 15,method=&quot;ADVI&quot;,seed=12,elbo_samples = 100)
+<pre class="r"><code># K =16, seed=19
+fit &lt;- fit.zinck(X,num_clusters = 18,method=&quot;ADVI&quot;,seed=1,boundary_correction = TRUE, prior_ZIGD = TRUE)
 theta &lt;- fit$theta
 beta &lt;- fit$beta
 X_tilde &lt;- zinck::generateKnockoff(X,theta,beta,seed=1) ## getting the knockoff copy</code></pre>
@@ -852,12 +861,11 @@ Random Forest model and compute the importance statistics for each
 feature. Then, we detect the non-zero features for the FDR threshold of
 <span class="math inline">\(0.2\)</span>. Then, we compute the Power
 (True Positive Rate) and the empirical FDR by comparing the selected set
-of taxa with the true set of taxa indexed from <span
-class="math inline">\(1,\dots,30\)</span>.</p>
-<pre class="r"><code>index &lt;- 1:30
+of taxa with the true set of taxa.</p>
+<pre class="r"><code>index &lt;- generate_data(p=ntaxa,seed=1)$signal_indices
 ################### Continuous Outcomes #########################
 ############## Target FDR = 0.2 ###############
-cts_rf &lt;- suppressWarnings(zinck.filter(X,X_tilde,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,mtry=200,seed=12,metric = &quot;Accuracy&quot;, rftuning = TRUE))
+cts_rf &lt;- suppressWarnings(zinck.filter(X,X_tilde,Y1,model=&quot;Random Forest&quot;,fdr=0.2,ntrees=5000,offset=1,mtry=400,seed=15,metric = &quot;Accuracy&quot;, rftuning = TRUE))
 index_est &lt;- cts_rf[[&quot;selected&quot;]]
 
 ### Evaluation metrics ###
@@ -869,18 +877,18 @@ estimated_FDR_zinck_cts &lt;- FP / (FP + TP) # Evaluating the empirical False Di
 estimated_power_zinck_cts &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
 print(paste(&quot;Estimated FDR for Target 0.2 (Continuous case):&quot;, estimated_FDR_zinck_cts))</code></pre>
-<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Continuous case): 0.111111111111111&quot;</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Continuous case): 0.166666666666667&quot;</code></pre>
 <pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.2 (Continuous case):&quot;, estimated_power_zinck_cts))</code></pre>
-<pre><code>[1] &quot;Estimated Power for Target 0.2 (Continuous case): 0.533333333333333&quot;</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.2 (Continuous case): 0.5&quot;</code></pre>
 <p>It is to be noted that <code>zinck</code> is outcome agnostic! That
 is, it performs feature selection irrespective of the outcome type.
 Thus, we demonstrate its power and empirical FDR for binary outcomes
 <span class="math inline">\(Y_2\)</span>.</p>
 <pre class="r"><code>Y2 &lt;- generate_data(p=ntaxa, seed=1)$Y_bin
-index &lt;- 1:30
+index &lt;- generate_data(p=ntaxa,seed=1)$signal_indices
 ################### Binary Outcomes #########################
 ############## Target FDR = 0.2 ###############
-bin_rf &lt;- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=0,mtry=14,seed=15,metric=&quot;Accuracy&quot;,rftuning = TRUE))
+bin_rf &lt;- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=0,mtry=45,seed=68,metric=&quot;Gini&quot;,rftuning = TRUE))
 index_est &lt;- bin_rf[[&quot;selected&quot;]]
 
 ### Evaluation metrics ###
@@ -892,9 +900,9 @@ estimated_FDR_zinck_bin &lt;- FP / (FP + TP) # Evaluating the empirical False Di
 estimated_power_zinck_bin &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
 print(paste(&quot;Estimated FDR for Target 0.2 (Binary case):&quot;, estimated_FDR_zinck_bin))</code></pre>
-<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Binary case): 0.0769230769230769&quot;</code></pre>
+<pre><code>[1] &quot;Estimated FDR for Target 0.2 (Binary case): 0.181818181818182&quot;</code></pre>
 <pre class="r"><code>print(paste(&quot;Estimated Power for Target 0.2 (Binary case):&quot;, estimated_power_zinck_bin))</code></pre>
-<pre><code>[1] &quot;Estimated Power for Target 0.2 (Binary case): 0.4&quot;</code></pre>
+<pre><code>[1] &quot;Estimated Power for Target 0.2 (Binary case): 0.3&quot;</code></pre>
 <p>We now compare the performance of <code>zinck</code> with two
 standard knockoff filters namely, Model-X Knockoff Filter (MX-KF) and
 the standard LDA based knockoff filter (LDA-KF) keeping the same FDR
@@ -906,7 +914,7 @@ class="math inline">\(\mathbf{X}\)</span>.</p>
 set.seed(1)
 Xlog = log_normalize(X)
 Xlog_tilde = create.second_order(Xlog)
-index_est &lt;- zinck.filter(Xlog,Xlog_tilde,Y1,model=&quot;Random Forest&quot;,fdr=0.2,seed=3)$selected
+index_est &lt;- zinck.filter(Xlog,Xlog_tilde,Y1,model=&quot;Random Forest&quot;,fdr=0.2,seed=4)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -916,14 +924,14 @@ TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_cts &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_cts &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-cat(&quot;LDA-KF (Continuous) metrics\n&quot;)</code></pre>
-<pre><code>LDA-KF (Continuous) metrics</code></pre>
+cat(&quot;MX-KF (Continuous) metrics\n&quot;)</code></pre>
+<pre><code>MX-KF (Continuous) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_KF_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0.125 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.1428571 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_KF_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.4666667 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.2 </code></pre>
 <pre class="r"><code>############### Binary Outcomes (MX-KF) ###################
-index_est &lt;- zinck.filter(Xlog,Xlog_tilde,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,seed=21)$selected
+index_est &lt;- zinck.filter(Xlog,Xlog_tilde,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,seed=1)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -933,12 +941,12 @@ TP &lt;- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_bin &lt;- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_bin &lt;- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-cat(&quot;LDA-KF (Binary) metrics\n&quot;)</code></pre>
-<pre><code>LDA-KF (Binary) metrics</code></pre>
+cat(&quot;MX-KF (Binary) metrics\n&quot;)</code></pre>
+<pre><code>MX-KF (Binary) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_KF_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0.1538462 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.4545455 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_KF_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.3666667 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.2 </code></pre>
 <pre class="r"><code>################ Continuous Outcomes (LDA-KF) ##################
 df.LDA = as(as.matrix(X),&quot;dgCMatrix&quot;)
 set.seed(1)
@@ -948,7 +956,7 @@ beta.LDA &lt;- vanilla.LDA@beta
 beta.LDA &lt;- t(apply(beta.LDA,1,function(row) row/sum(row)))
 X_tilde.LDA &lt;- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
-index_est &lt;- zinck.filter(X,X_tilde.LDA,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=34)$selected
+index_est &lt;- zinck.filter(X,X_tilde.LDA,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=20)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -961,12 +969,12 @@ estimated_power_LDA_cts &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Continuous) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Continuous) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.516129 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.1333333 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.5 </code></pre>
 <pre class="r"><code>############### Binary Outcomes (LDA-KF) ###################
 
-index_est &lt;- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=34)$selected
+index_est &lt;- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=1,seed=14,rftuning = TRUE,metric=&quot;Gini&quot;,mtry=67)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -979,7 +987,7 @@ estimated_power_LDA_bin &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Binary) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Binary) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.4 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_bin, &quot;\n&quot;)</code></pre>
 <pre><code>Estimated Power for Target 0.2: 0.3 </code></pre>
 <p>To summarize the metrics for the three methods, we create the
@@ -1022,10 +1030,10 @@ Zinck
 Continuous
 </td>
 <td style="text-align:right;">
-0.5333333
+0.5
 </td>
 <td style="text-align:right;">
-0.1111111
+0.1666667
 </td>
 </tr>
 <tr>
@@ -1036,10 +1044,10 @@ MX-KF
 Continuous
 </td>
 <td style="text-align:right;">
-0.4666667
+0.2
 </td>
 <td style="text-align:right;">
-0.1250000
+0.1428571
 </td>
 </tr>
 <tr>
@@ -1050,10 +1058,10 @@ LDA-KF
 Continuous
 </td>
 <td style="text-align:right;">
-0.1333333
+0.5
 </td>
 <td style="text-align:right;">
-0.0000000
+0.5161290
 </td>
 </tr>
 <tr>
@@ -1064,10 +1072,10 @@ Zinck
 Binary
 </td>
 <td style="text-align:right;">
-0.4000000
+0.3
 </td>
 <td style="text-align:right;">
-0.0769231
+0.1818182
 </td>
 </tr>
 <tr>
@@ -1078,10 +1086,10 @@ MX-KF
 Binary
 </td>
 <td style="text-align:right;">
-0.3666667
+0.2
 </td>
 <td style="text-align:right;">
-0.1538462
+0.4545455
 </td>
 </tr>
 <tr>
@@ -1092,10 +1100,10 @@ LDA-KF
 Binary
 </td>
 <td style="text-align:right;">
-0.3000000
+0.3
 </td>
 <td style="text-align:right;">
-0.0000000
+0.4000000
 </td>
 </tr>
 </tbody>
@@ -1170,6 +1178,11 @@ loaded via a namespace (and not attached):
 [100] vegan_2.6-4            digest_0.6.31          tm_0.7-8              
 [103] httpuv_1.6.11          RcppParallel_5.1.7     stats4_4.1.3          
 [106] munsell_0.5.0          viridisLite_0.4.2      bslib_0.5.0           </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
