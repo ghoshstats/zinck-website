@@ -752,7 +752,7 @@ class="math inline">\(30\)</span> were randomly assumed to be associated
 with the outcome, while the remaining <span
 class="math inline">\(p-30\)</span> taxa had no effect. To simulate
 outcomes reflecting realistic microbiome data, signal strengths <span
-class="math inline">\(\bm{s}\)</span> for the associated <span
+class="math inline">\(\boldsymbol{s}\)</span> for the associated <span
 class="math inline">\(30\)</span> biomarkers were defined as: <span
 class="math display">\[
 s_j \overset{d}{=}  
@@ -956,6 +956,7 @@ beta.LDA &lt;- vanilla.LDA@beta
 beta.LDA &lt;- t(apply(beta.LDA,1,function(row) row/sum(row)))
 X_tilde.LDA &lt;- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
+
 index_est &lt;- zinck.filter(X,X_tilde.LDA,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=20)$selected
 
 ### Evaluation metrics ###
@@ -969,9 +970,9 @@ estimated_power_LDA_cts &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Continuous) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Continuous) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0.516129 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.2857143 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.5 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.3333333 </code></pre>
 <pre class="r"><code>############### Binary Outcomes (LDA-KF) ###################
 
 index_est &lt;- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=1,seed=14,rftuning = TRUE,metric=&quot;Gini&quot;,mtry=67)$selected
@@ -987,9 +988,9 @@ estimated_power_LDA_bin &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Binary) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Binary) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0.4 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.3 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.1666667 </code></pre>
 <p>To summarize the metrics for the three methods, we create the
 following table.</p>
 <pre class="r"><code># Example collected results for demonstration purposes
@@ -1030,7 +1031,7 @@ Zinck
 Continuous
 </td>
 <td style="text-align:right;">
-0.5
+0.5000000
 </td>
 <td style="text-align:right;">
 0.1666667
@@ -1044,7 +1045,7 @@ MX-KF
 Continuous
 </td>
 <td style="text-align:right;">
-0.2
+0.2000000
 </td>
 <td style="text-align:right;">
 0.1428571
@@ -1058,10 +1059,10 @@ LDA-KF
 Continuous
 </td>
 <td style="text-align:right;">
-0.5
+0.3333333
 </td>
 <td style="text-align:right;">
-0.5161290
+0.2857143
 </td>
 </tr>
 <tr>
@@ -1072,7 +1073,7 @@ Zinck
 Binary
 </td>
 <td style="text-align:right;">
-0.3
+0.3000000
 </td>
 <td style="text-align:right;">
 0.1818182
@@ -1086,7 +1087,7 @@ MX-KF
 Binary
 </td>
 <td style="text-align:right;">
-0.2
+0.2000000
 </td>
 <td style="text-align:right;">
 0.4545455
@@ -1100,10 +1101,10 @@ LDA-KF
 Binary
 </td>
 <td style="text-align:right;">
-0.3
+0.1666667
 </td>
 <td style="text-align:right;">
-0.4000000
+0.0000000
 </td>
 </tr>
 </tbody>
