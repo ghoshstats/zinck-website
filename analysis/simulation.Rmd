@@ -94,7 +94,7 @@ $$
 $$
 where $N_d$ is the sequencing depth for sample $d$, and $\Pi_d$ is the vector of true proportions for sample $d$ with $\Pi_{dj}$ (j = 1...p) as its element.
 
-Given the simulated count, among the first $200$ taxa, $30$ were randomly assumed to be associated with the outcome, while the remaining $p-30$ taxa had no effect. To simulate outcomes reflecting realistic microbiome data, signal strengths $\bm{s}$ for the associated $30$ biomarkers were defined as:
+Given the simulated count, among the first $200$ taxa, $30$ were randomly assumed to be associated with the outcome, while the remaining $p-30$ taxa had no effect. To simulate outcomes reflecting realistic microbiome data, signal strengths $\boldsymbol{s}$ for the associated $30$ biomarkers were defined as:
 $$
 s_j \overset{d}{=}  
 \begin{cases} 
