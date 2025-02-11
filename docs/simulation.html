@@ -954,10 +954,11 @@ vanilla.LDA &lt;- LDA(df.LDA,k=8,method=&quot;VEM&quot;)
 theta.LDA &lt;- vanilla.LDA@gamma
 beta.LDA &lt;- vanilla.LDA@beta
 beta.LDA &lt;- t(apply(beta.LDA,1,function(row) row/sum(row)))
+set.seed(1)
 X_tilde.LDA &lt;- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
 
-index_est &lt;- zinck.filter(X,X_tilde.LDA,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=20)$selected
+index_est &lt;- zinck.filter(X,X_tilde.LDA,Y1,model=&quot;Random Forest&quot;,fdr=0.2,offset=0,seed=2)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -970,12 +971,12 @@ estimated_power_LDA_cts &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Continuous) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Continuous) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0.2857143 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.44 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_cts, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.3333333 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.4666667 </code></pre>
 <pre class="r"><code>############### Binary Outcomes (LDA-KF) ###################
 
-index_est &lt;- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=1,seed=14,rftuning = TRUE,metric=&quot;Gini&quot;,mtry=67)$selected
+index_est &lt;- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model=&quot;Random Forest&quot;,fdr=0.2,offset=1,seed=4,rftuning = TRUE,metric=&quot;Gini&quot;,mtry=67)$selected
 
 ### Evaluation metrics ###
 FN &lt;- sum(index %in% index_est == FALSE) ## False Negatives
@@ -988,9 +989,9 @@ estimated_power_LDA_bin &lt;- TP / (TP + FN) # Evaluating the empirical Power or
 cat(&quot;LDA-KF (Binary) metrics\n&quot;)</code></pre>
 <pre><code>LDA-KF (Binary) metrics</code></pre>
 <pre class="r"><code>cat(&quot;Estimated FDR for Target 0.2:&quot;, estimated_FDR_LDA_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated FDR for Target 0.2: 0 </code></pre>
+<pre><code>Estimated FDR for Target 0.2: 0.3076923 </code></pre>
 <pre class="r"><code>cat(&quot;Estimated Power for Target 0.2:&quot;, estimated_power_LDA_bin, &quot;\n&quot;)</code></pre>
-<pre><code>Estimated Power for Target 0.2: 0.1666667 </code></pre>
+<pre><code>Estimated Power for Target 0.2: 0.3 </code></pre>
 <p>To summarize the metrics for the three methods, we create the
 following table.</p>
 <pre class="r"><code># Example collected results for demonstration purposes
@@ -1059,10 +1060,10 @@ LDA-KF
 Continuous
 </td>
 <td style="text-align:right;">
-0.3333333
+0.4666667
 </td>
 <td style="text-align:right;">
-0.2857143
+0.4400000
 </td>
 </tr>
 <tr>
@@ -1101,10 +1102,10 @@ LDA-KF
 Binary
 </td>
 <td style="text-align:right;">
-0.1666667
+0.3000000
 </td>
 <td style="text-align:right;">
-0.0000000
+0.3076923
 </td>
 </tr>
 </tbody>
