@@ -281,10 +281,11 @@ vanilla.LDA <- LDA(df.LDA,k=8,method="VEM")
 theta.LDA <- vanilla.LDA@gamma
 beta.LDA <- vanilla.LDA@beta
 beta.LDA <- t(apply(beta.LDA,1,function(row) row/sum(row)))
+set.seed(1)
 X_tilde.LDA <- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
 
-index_est <- zinck.filter(X,X_tilde.LDA,Y1,model="Random Forest",fdr=0.2,offset=0,seed=20)$selected
+index_est <- zinck.filter(X,X_tilde.LDA,Y1,model="Random Forest",fdr=0.2,offset=0,seed=2)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -301,7 +302,7 @@ cat("Estimated Power for Target 0.2:", estimated_power_LDA_cts, "\n")
 
 ############### Binary Outcomes (LDA-KF) ###################
 
-index_est <- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model="Random Forest",fdr=0.2,offset=1,seed=14,rftuning = TRUE,metric="Gini",mtry=67)$selected
+index_est <- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model="Random Forest",fdr=0.2,offset=1,seed=4,rftuning = TRUE,metric="Gini",mtry=67)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
