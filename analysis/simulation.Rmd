@@ -86,7 +86,7 @@ load("/Users/Patron/Documents/zinck research/meta.RData")
 ```
 
 
-We take the colon cancer (CRC) dataset which encompasses five distinct studies each originating from different countries. We calculated the average proportions of species across all $574$ samples from five metagenomic studies and retained the top $p = 100$ most abundant species. Then, we randomly sampled $D = 500$ samples from the cohort of $574$ observations and normalized their raw OTU counts row-wise, ensuring each row sums to $1$. To avoid zero probabilities during multinomial sampling, a small constant ($0.5$) was added to the raw OTU counts before normalization.
+We take the colon cancer (CRC) dataset which encompasses five distinct studies each originating from different countries. We calculated the average proportions of species across all $574$ samples from five metagenomic studies and retained the top $p = 200$ most abundant species. Then, we randomly sampled $D = 500$ samples from the cohort of $574$ observations and normalized their raw OTU counts row-wise, ensuring each row sums to $1$. To avoid zero probabilities during multinomial sampling, a small constant ($0.5$) was added to the raw OTU counts before normalization.
 
 Next, we paired the calculated true proportions $\Pi$ with sequencing depths resampled from the original dataset. Each sequencing depth was independently resampled and paired with a proportion vector from a different subject. Using these paired proportions and sequencing depths, we generated the taxa count matrix $\mathbf{X}^{D \times p}$ via multinomial sampling. For each sample $d = 1, 2, \ldots, 500$, the count vector corresponding to the $d^{\text{th}}$ row of $\mathbf{X}$ was generated as:
 $$
@@ -94,7 +94,7 @@ $$
 $$
 where $N_d$ is the sequencing depth for sample $d$, and $\Pi_d$ is the vector of true proportions for sample $d$ with $\Pi_{dj}$ (j = 1...p) as its element.
 
-Given the simulated count, among the $p=100$ taxa, the first $30$ were assumed to be associated with the outcome, while the remaining $70$ taxa had no effect. To simulate outcomes reflecting realistic microbiome data, signal strengths $s$ for the top $30$ bio-markers were defined as:
+Given the simulated count, among the first $200$ taxa, $30$ were randomly assumed to be associated with the outcome, while the remaining $p-30$ taxa had no effect. To simulate outcomes reflecting realistic microbiome data, signal strengths $\bm{s}$ for the associated $30$ biomarkers were defined as:
 $$
 s_j \overset{d}{=}  
 \begin{cases} 
@@ -102,7 +102,7 @@ s_j \overset{d}{=}
     (2Z_j - 1) \frac{U_2}{\sqrt{C_j}}, & \text{for binary outcomes},
 \end{cases}
 $$
-where $U_1 \sim \text{Uniform}(1.5, 3)$ and $U_2 \sim \text{Uniform}(3, 10)$ represent the signal magnitudes, $Z_j \sim \text{Bernoulli}(0.5)$ determines the sign of $s_j$ ($+1$ or $-1$), and $C_j$ is the column-wise average abundance of the $j^{\text{th}}$ bio-marker in $\Pi$.
+where $U_1 \sim \text{Uniform}(6, 12)$ and $U_2 \sim \text{Uniform}(30, 50)$ represent the signal magnitudes, $Z_j \sim \text{Bernoulli}(0.5)$ determines the sign of $s_j$ ($+1$ or $-1$), and $C_j$ is the column-wise average abundance of the $j^{\text{th}}$ bio-marker in $\Pi$.
 
 Outcomes were generated using the following model:
 $$
@@ -113,57 +113,65 @@ where $g(\cdot)$ is the identity link for continuous outcomes and the logit link
 We replicate a single iteration of this setting for both continuous and binary outcomes.
 
 ```{r simulation-setting}
-generate_data <- function(p,seed){
-  dcount <- count[,order(decreasing=T,colSums(count,na.rm=T),apply(count,2L,paste,collapse=''))] ## ordering the columns w/ decreasing abundance
-  ####### Randomly sampling patients from 574 observations #######
+generate_data <- function(p, seed) {
+  dcount <- count[, order(decreasing = TRUE, colSums(count, na.rm = TRUE), apply(count, 2L, paste, collapse = ''))] # Ordering the columns with decreasing abundance
+  
+  # Randomly sampling patients from 574 observations
   set.seed(seed)
-  norm_count <- count/rowSums(count)
+  norm_count <- count / rowSums(count)
   col_means <- colMeans(norm_count > 0)
   indices <- which(col_means > 0.2)
-  sorted_indices <- indices[order(col_means[indices], decreasing=TRUE)]
-  if(p %in% c(100,200,300,400)){
-    dcount <- count[,sorted_indices][,1:p]
+  sorted_indices <- indices[order(col_means[indices], decreasing = TRUE)]
+  
+  if (p %in% c(200, 300, 400)) {
+    dcount <- count[, sorted_indices][, 1:p]
     sel_index <- sort(sample(1:nrow(dcount), 500))
-    dcount <- dcount[sel_index,]
+    dcount <- dcount[sel_index, ]
     original_OTU <- dcount + 0.5
     seq_depths <- rowSums(original_OTU)
-    Pi = sweep(original_OTU, 1, seq_depths, "/")
-    n = nrow(Pi)
+    Pi <- sweep(original_OTU, 1, seq_depths, "/")
+    n <- nrow(Pi)
     
-    col_abundances = colMeans(Pi)
+    col_abundances <- colMeans(Pi)
     
     ##### Generating continuous responses ######
     set.seed(1)
-    signals = (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 1.5, 3)
-    kBeta = c(signals / sqrt(col_abundances[1:30]), rep(0, p - 30))
-    eps=rnorm(n,mean = 0, sd=1)
-    Y <- Pi^2 %*% (kBeta/2) + Pi %*% kBeta + eps
+    signal_indices <- sample(1:min(p, 200), 30, replace = FALSE) # Randomly selecting 30 indices for signal injection
+    signals <- (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 6, 12)
+    kBeta <- numeric(p)
+    kBeta[signal_indices] <- signals / sqrt(col_abundances[signal_indices])
+    
+    eps <- rnorm(n, mean = 0, sd = 1)
+    Y <- Pi^2 %*% (kBeta / 2) + Pi %*% kBeta + eps
     
     ##### Generating binary responses #####
     set.seed(1)
-    signals = (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 3, 10)
-    kBeta = c(signals / sqrt(col_abundances[1:30]), rep(0, p - 30))
-    pr = 1/(1+exp(-(Pi^2 %*% (kBeta/2) + Pi %*% kBeta)))
-    Y_bin = rbinom(n,1,pr)
+    signals <- (2 * rbinom(30, 1, 0.5) - 1) * runif(30, 30, 50)
+    kBeta[signal_indices] <- signals / sqrt(col_abundances[signal_indices])
+    
+    pr <- 1 / (1 + exp(-(Pi^2 %*% (kBeta / 2) + Pi %*% kBeta)))
+    Y_bin <- rbinom(n, 1, pr)
     
     ######### Generate a copy of X #########
     X <- matrix(0, nrow = nrow(Pi), ncol = ncol(Pi))
     nSeq <- seq_depths
+    
     # Loop over each row to generate the new counts based on the multinomial distribution
-    
     set.seed(1)
-    
     for (i in 1:nrow(Pi)) {
-      X[i, ] <- rmultinom(1, size = nSeq, prob = Pi[i, ])
-    }  
-  } else if (p %in% c(200,300,400)) {
-    print("Enter p within 100 to 400")
+      X[i, ] <- rmultinom(1, size = nSeq[i], prob = Pi[i, ])
+    }
+    
+  } else {
+    print("Enter p within 200 to 400")
   }
+  
   colnames(X) <- colnames(Pi)
-  return(list(Y = Y, X = X, Y_bin = Y_bin, index = 1:30))
+  return(list(Y = Y, X = X, Y_bin = Y_bin, signal_indices = signal_indices))
 }
 
-ntaxa = 100 # Change to p = 200, 300, 400 accordingly.
+
+ntaxa = 200 # Change to p = 200, 300, 400 accordingly.
 
 X <- generate_data(p=ntaxa, seed=1)$X
 Y1 <- generate_data(p=ntaxa, seed=1)$Y
@@ -175,8 +183,8 @@ On extracting the sample taxa count matrix $X$ and continuous outcomes $Y_1$, we
 
 ```{r zinck-fit, message=FALSE, warning=FALSE, results='hide'}
 
-
-fit <- fit.zinck(X,num_clusters = 15,method="ADVI",seed=12,elbo_samples = 100)
+# K =16, seed=19
+fit <- fit.zinck(X,num_clusters = 18,method="ADVI",seed=1,boundary_correction = TRUE, prior_ZIGD = TRUE)
 theta <- fit$theta
 beta <- fit$beta
 X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## getting the knockoff copy
@@ -184,13 +192,13 @@ X_tilde <- zinck::generateKnockoff(X,theta,beta,seed=1) ## getting the knockoff 
 
 ```
 
-Now that we have generated the knockoff copy, we will fit a model associating the response $Y_1$  with the augmented set of covariates $[X,\tilde{X}]^{D \times 2p}$. We fit a Random Forest model and compute the importance statistics for each feature. Then, we detect the non-zero features for the FDR threshold of $0.2$. Then, we compute the Power (True Positive Rate) and the empirical FDR by comparing the selected set of taxa with the true set of taxa indexed from $1,\dots,30$.
+Now that we have generated the knockoff copy, we will fit a model associating the response $Y_1$  with the augmented set of covariates $[X,\tilde{X}]^{D \times 2p}$. We fit a Random Forest model and compute the importance statistics for each feature. Then, we detect the non-zero features for the FDR threshold of $0.2$. Then, we compute the Power (True Positive Rate) and the empirical FDR by comparing the selected set of taxa with the true set of taxa.
 
 ```{r model-continuous}
-index <- 1:30
+index <- generate_data(p=ntaxa,seed=1)$signal_indices
 ################### Continuous Outcomes #########################
 ############## Target FDR = 0.2 ###############
-cts_rf <- suppressWarnings(zinck.filter(X,X_tilde,Y1,model="Random Forest",fdr=0.2,offset=0,mtry=200,seed=12,metric = "Accuracy", rftuning = TRUE))
+cts_rf <- suppressWarnings(zinck.filter(X,X_tilde,Y1,model="Random Forest",fdr=0.2,ntrees=5000,offset=1,mtry=400,seed=15,metric = "Accuracy", rftuning = TRUE))
 index_est <- cts_rf[["selected"]]
 
 ### Evaluation metrics ###
@@ -210,10 +218,10 @@ It is to be noted that `zinck` is outcome agnostic! That is, it performs feature
 
 ```{r model-binary}
 Y2 <- generate_data(p=ntaxa, seed=1)$Y_bin
-index <- 1:30
+index <- generate_data(p=ntaxa,seed=1)$signal_indices
 ################### Binary Outcomes #########################
 ############## Target FDR = 0.2 ###############
-bin_rf <- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,mtry=14,seed=15,metric="Accuracy",rftuning = TRUE))
+bin_rf <- suppressWarnings(zinck.filter(X,X_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,mtry=45,seed=68,metric="Gini",rftuning = TRUE))
 index_est <- bin_rf[["selected"]]
 
 ### Evaluation metrics ###
@@ -237,7 +245,7 @@ We now compare the performance of `zinck` with two standard knockoff filters nam
 set.seed(1)
 Xlog = log_normalize(X)
 Xlog_tilde = create.second_order(Xlog)
-index_est <- zinck.filter(Xlog,Xlog_tilde,Y1,model="Random Forest",fdr=0.2,seed=3)$selected
+index_est <- zinck.filter(Xlog,Xlog_tilde,Y1,model="Random Forest",fdr=0.2,seed=4)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -247,12 +255,12 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_cts <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_cts <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-cat("LDA-KF (Continuous) metrics\n")
+cat("MX-KF (Continuous) metrics\n")
 cat("Estimated FDR for Target 0.2:", estimated_FDR_KF_cts, "\n")
 cat("Estimated Power for Target 0.2:", estimated_power_KF_cts, "\n")
 
 ############### Binary Outcomes (MX-KF) ###################
-index_est <- zinck.filter(Xlog,Xlog_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,seed=21)$selected
+index_est <- zinck.filter(Xlog,Xlog_tilde,as.factor(Y2),model="Random Forest",fdr=0.2,seed=1)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -262,7 +270,7 @@ TP <- sum(index_est %in% index == TRUE) ## True Positives
 estimated_FDR_KF_bin <- FP / (FP + TP) # Evaluating the empirical False Discovery Rate
 estimated_power_KF_bin <- TP / (TP + FN) # Evaluating the empirical Power or TPR
 
-cat("LDA-KF (Binary) metrics\n")
+cat("MX-KF (Binary) metrics\n")
 cat("Estimated FDR for Target 0.2:", estimated_FDR_KF_bin, "\n")
 cat("Estimated Power for Target 0.2:", estimated_power_KF_bin, "\n")
 
@@ -275,7 +283,8 @@ beta.LDA <- vanilla.LDA@beta
 beta.LDA <- t(apply(beta.LDA,1,function(row) row/sum(row)))
 X_tilde.LDA <- zinck::generateKnockoff(X,theta.LDA,beta.LDA,seed=1) ## Generating vanilla LDA knockoff copy
 
-index_est <- zinck.filter(X,X_tilde.LDA,Y1,model="Random Forest",fdr=0.2,offset=0,seed=34)$selected
+
+index_est <- zinck.filter(X,X_tilde.LDA,Y1,model="Random Forest",fdr=0.2,offset=0,seed=20)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
@@ -292,7 +301,7 @@ cat("Estimated Power for Target 0.2:", estimated_power_LDA_cts, "\n")
 
 ############### Binary Outcomes (LDA-KF) ###################
 
-index_est <- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model="Random Forest",fdr=0.2,offset=0,seed=34)$selected
+index_est <- zinck.filter(X,X_tilde.LDA,as.factor(Y2),model="Random Forest",fdr=0.2,offset=1,seed=14,rftuning = TRUE,metric="Gini",mtry=67)$selected
 
 ### Evaluation metrics ###
 FN <- sum(index %in% index_est == FALSE) ## False Negatives
